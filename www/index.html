@@ -27,10 +27,10 @@
   .balance-card .phone{ color:#B9B9B9; font-size:14px; margin-bottom:10px; }
   .balance-card .num{ color:#E23C3C; font-size:34px; font-weight:800; }
   .balance-card .lbl{ color:#9a9a9a; font-size:12.5px; margin:4px 0 14px; }
-  .quickrow{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+  .quickrow{ display:flex; gap:10px; justify-content:center; }
   .quickrow button{
-    background:#2A2A2A; color:#eee; border:none; border-radius:10px; padding:9px 12px;
-    font-size:12.5px; font-weight:600; cursor:pointer;
+    background:#2A2A2A; color:#eee; border:none; border-radius:10px; padding:11px 20px;
+    font-size:13.5px; font-weight:700; cursor:pointer;
   }
 
   .section-title{ text-align:center; color:#fff; font-size:19px; font-weight:800; margin:22px 0 14px; }
@@ -80,23 +80,49 @@
   .firstrun input{ width:100%; background:#1B1B1B; border:1px solid #2a2a2a; color:#eee; padding:14px 16px; border-radius:12px; margin-bottom:14px; font-size:15px; }
   .firstrun button{ width:100%; background:#C22626; color:#fff; border:none; border-radius:12px; padding:14px; font-weight:800; font-size:15px; cursor:pointer; }
 
-  .admin-login{ height:800px; display:flex; flex-direction:column; justify-content:center; padding:30px; background:#0c0c0c; }
-  .admin-login h2{ color:#FFC93C; text-align:center; margin-bottom:20px; font-family:Georgia,serif; }
-  .admin-login input{ width:100%; background:#1B1B1B; border:1px solid #333; color:#eee; padding:13px 16px; border-radius:10px; margin-bottom:12px; }
-  .admin-login button{ width:100%; background:#FFC93C; color:#1a1400; border:none; border-radius:10px; padding:13px; font-weight:800; cursor:pointer; }
-  .admin-err{ color:#E23C3C; font-size:12px; text-align:center; margin-bottom:10px; min-height:14px;}
+  .loading{ height:800px; display:flex; flex-direction:column; justify-content:center; align-items:center; background:#0c0f14; }
+  .loading .dot{ width:8px; height:8px; background:#4CD964; border-radius:50%; margin-bottom:26px; animation:pulse 1s infinite; }
+  @keyframes pulse{ 0%,100%{opacity:.3;} 50%{opacity:1;} }
+  .loading h3{ color:#eee; font-weight:700; font-size:16px; margin:0 0 6px; }
+  .loading p{ color:#888; font-size:12.5px; margin:0; }
 
-  .admin-panel{ padding:18px; background:#101010; min-height:800px; }
-  .admin-panel h3{ color:#fff; font-size:16px; margin:18px 0 10px; }
-  .admin-tabs{ display:flex; gap:8px; margin-bottom:10px; }
-  .admin-tabs button{ flex:1; padding:9px; border-radius:10px; border:1px solid #2a2a2a; background:#171717; color:#ccc; font-size:12.5px; cursor:pointer; }
-  .admin-tabs button.active{ background:#FFC93C; color:#1a1400; border-color:#FFC93C; font-weight:700; }
-  .admin-row{ display:flex; justify-content:space-between; align-items:center; background:#171717; border:1px solid #262626; border-radius:10px; padding:11px 14px; margin-bottom:8px; color:#eee; font-size:13.5px; direction:ltr; text-align:right;}
-  .admin-row button{ background:#3a1414; color:#E23C3C; border:none; border-radius:8px; padding:5px 10px; font-size:11.5px; cursor:pointer; }
-  .admin-add{ display:flex; gap:8px; margin-top:10px; }
-  .admin-add input{ flex:1; background:#171717; border:1px solid #2a2a2a; color:#eee; border-radius:10px; padding:10px; direction:ltr; }
-  .admin-add button{ background:#4CD964; color:#062b0c; border:none; border-radius:10px; padding:0 16px; font-weight:800; cursor:pointer; }
-  .backbtn{ background:none; border:none; color:#999; font-size:13px; cursor:pointer; margin-bottom:10px; }
+  /* raw output view */
+  .raw-view{ position:absolute; inset:0; background:#0a0a0a; z-index:60; display:none; flex-direction:column; }
+  .raw-view.open{ display:flex; }
+  .raw-head{ display:flex; align-items:center; justify-content:space-between; padding:16px; border-bottom:1px solid #232323; }
+  .raw-head h3{ color:#fff; font-size:15px; margin:0; }
+  .raw-head button{ background:#2A2A2A; color:#eee; border:none; border-radius:8px; padding:7px 14px; font-size:13px; cursor:pointer; }
+  .raw-body{ flex:1; overflow-y:auto; padding:14px; }
+  .raw-body pre{ color:#8FE38F; font-family:'IBM Plex Mono',monospace; font-size:12px; white-space:pre-wrap; word-break:break-word; margin:0; direction:ltr; text-align:left; line-height:1.6; }
+
+  /* sub screens (topup / transactions / placeholder) */
+  .subscreen{ position:absolute; inset:0; background:#101010; z-index:55; display:none; flex-direction:column; }
+  .subscreen.open{ display:flex; }
+  .sub-head{ display:flex; align-items:center; gap:10px; padding:16px; border-bottom:1px solid #232323; }
+  .sub-head button{ background:none; border:none; color:#eee; font-size:20px; cursor:pointer; }
+  .sub-head h3{ color:#fff; font-size:16px; margin:0; }
+  .sub-body{ flex:1; overflow-y:auto; padding:20px; }
+  .sub-empty{ color:#777; text-align:center; margin-top:60px; font-size:13.5px; line-height:1.8; }
+
+  .topup-field{ margin-bottom:16px; }
+  .topup-field label{ display:block; color:#999; font-size:12px; margin-bottom:6px; }
+  .topup-field .box{
+    display:flex; align-items:center; gap:10px; background:#171717; border:1px solid #2a2a2a;
+    border-radius:12px; padding:13px 16px;
+  }
+  .topup-field .box.blue{ border-color:#3B7DD8; }
+  .topup-field .box.green{ border-color:#3FBF6B; }
+  .topup-field .box input{ flex:1; background:none; border:none; color:#eee; font-size:16px; outline:none; direction:ltr; text-align:right; }
+  .topup-field .box .sym{ color:#eee; font-size:16px; font-weight:700; }
+  .cashbox{ background:#171717; border:1px solid #2a2a2a; border-radius:12px; padding:14px 16px; margin-bottom:14px; }
+  .cashbox .lbl{ color:#999; font-size:12px; margin-bottom:8px; }
+  .cashbox .row{ display:flex; align-items:center; justify-content:space-between; }
+  .cashbox .num{ color:#4CD964; font-size:18px; font-weight:800; direction:ltr; }
+  .cashbox button{ background:none; border:none; color:#aaa; font-size:16px; cursor:pointer; }
+  .topup-actions{ display:flex; gap:10px; margin-top:20px; }
+  .topup-actions button{ flex:1; padding:13px; border-radius:12px; border:none; font-weight:800; font-size:14px; cursor:pointer; }
+  .btn-confirm{ background:#2E6FE0; color:#fff; }
+  .btn-cancel{ background:#C22626; color:#fff; }
 </style>
 </head>
 <body>
@@ -112,22 +138,32 @@
     </div>
   </div>
 
+  <!-- LOADING -->
+  <div class="view" id="view-loading">
+    <div class="loading">
+      <div class="dot"></div>
+      <h3>جاري الاتصال وجلب البيانات...</h3>
+      <p>برجاء الانتظار قليلاً</p>
+    </div>
+  </div>
+
   <!-- HOME -->
   <div class="view" id="view-home">
     <div class="statusbar"><span>9:41</span><span>VF EG 5G</span></div>
     <div class="appbar">
       <button class="icon" onclick="openDrawer()">☰</button>
       <div class="brandmark" id="logoTap">SPARTAN</div>
-      <div class="right"><span class="icon">🔔</span><span class="icon">⟳</span></div>
+      <div class="right"><span class="icon">🔔</span><span class="icon" onclick="refreshMsisdn()">⟳</span></div>
     </div>
-    <div class="screen" style="height:auto; min-height:740px;">
+    <div class="screen" style="height:auto; min-height:740px; position:relative;">
       <div class="balance-card">
         <div class="hi" id="greetName">مرحباً السيد</div>
-        <div class="phone">01025411874</div>
+        <div class="phone" id="userPhone">جاري الجلب...</div>
         <div class="num" id="starsBalance">0</div>
         <div class="lbl">نقاطك</div>
         <div class="quickrow">
-          <button>السجل</button><button>شحن</button><button>تحويل</button><button>الجروب</button><button>الدعم</button>
+          <button onclick="openTopup()">شحن نقاط</button>
+          <button onclick="openTransactions()">سجل المعاملات</button>
         </div>
       </div>
 
@@ -142,28 +178,98 @@
         <button class="chargebtn" onclick="submitCharge()">شحن</button>
       </div>
       <div style="height:20px;"></div>
+
+      <!-- RAW OUTPUT -->
+      <div class="raw-view" id="rawView">
+        <div class="raw-head">
+          <h3>الرد الخام</h3>
+          <button onclick="closeRaw()">إغلاق</button>
+        </div>
+        <div class="raw-body"><pre id="rawText"></pre></div>
+      </div>
+
+      <!-- TOPUP -->
+      <div class="subscreen" id="topupScreen">
+        <div class="sub-head">
+          <button onclick="closeSub('topupScreen')">›</button>
+          <h3>طلب شحن نقاط</h3>
+        </div>
+        <div class="sub-body">
+          <div class="topup-field">
+            <label>عدد النقاط</label>
+            <div class="box blue">
+              <span class="sym">★</span>
+              <input id="pointsInput" type="number" min="1" oninput="updateTopupAmount()" placeholder="0">
+            </div>
+          </div>
+          <div class="topup-field">
+            <label>المبلغ المطلوب تحويله (جنيه)</label>
+            <div class="box green">
+              <span class="sym">$</span>
+              <input id="amountField" type="text" readonly value="0">
+            </div>
+          </div>
+          <div class="cashbox">
+            <div class="lbl">حوّل الكاش هنا</div>
+            <div class="row">
+              <span class="num" id="cashNumberText">01556058014</span>
+              <button onclick="copyCashNumber()">⧉</button>
+            </div>
+          </div>
+          <div class="topup-field">
+            <label>الرقم اللي حولت منه</label>
+            <div class="box">
+              <input id="senderNumberInput" type="tel" maxlength="11" placeholder="01xxxxxxxxx">
+            </div>
+          </div>
+          <div class="topup-actions">
+            <button class="btn-confirm" onclick="confirmTopup()">تأكيد الطلب</button>
+            <button class="btn-cancel" onclick="closeSub('topupScreen')">إلغاء</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TRANSACTIONS -->
+      <div class="subscreen" id="transactionsScreen">
+        <div class="sub-head">
+          <button onclick="closeSub('transactionsScreen')">›</button>
+          <h3>سجل المعاملات</h3>
+        </div>
+        <div class="sub-body">
+          <div class="sub-empty">مفيش عمليات شحن مسجلة لسه.<br>السجل هيتفعّل لما نربط لوحة تحكم الأدمن.</div>
+        </div>
+      </div>
+
+      <!-- PLACEHOLDER (طلبات الشحن / الإشعارات) -->
+      <div class="subscreen" id="placeholderScreen">
+        <div class="sub-head">
+          <button onclick="closeSub('placeholderScreen')">›</button>
+          <h3 id="placeholderTitle">قريبًا</h3>
+        </div>
+        <div class="sub-body">
+          <div class="sub-empty" id="placeholderText">الميزة دي هتتفعّل مع لوحة تحكم الأدمن.</div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- DRAWER + OVERLAY (shared) -->
+  <!-- DRAWER + OVERLAY -->
   <div class="overlay" id="overlay" onclick="closeDrawer()"></div>
   <div class="drawer" id="drawer">
     <div class="drawer-head">
       <div class="avatar">👤</div>
       <div class="hi" id="drawerName">مرحباً السيد</div>
-      <div class="phone">01025411874</div>
+      <div class="phone" id="drawerPhone">جاري الجلب...</div>
     </div>
     <div class="drawer-bal">رصيدك الحالي: <b id="drawerBalance">0</b></div>
     <div class="drawer-list">
-      <div class="drawer-item"><span class="ic" style="color:#FF9500">🕓</span> سجل العمليات</div>
-      <div class="drawer-item"><span class="ic" style="color:#4CD964">💲</span> شحن نقاط</div>
-      <div class="drawer-item"><span class="ic" style="color:#B266FF">⇄</span> تحويل نقاط لمستخدم</div>
-      <div class="drawer-item"><span class="ic" style="color:#2DD4C7">◎</span> متابعة طلبات الشحن</div>
-      <div class="drawer-item"><span class="ic" style="color:#FFD23F">🔔</span> الإشعارات</div>
-      <div class="drawer-item"><span class="ic" style="color:#3B9EFF">💬</span> تواصل معنا</div>
-      <div class="drawer-item"><span class="ic" style="color:#8C6BFF">👥</span> جروبات التطبيق</div>
-      <div class="drawer-item"><span class="ic" style="color:#4FD1E8">🌐</span> موقعنا</div>
-      <div class="drawer-item"><span class="ic" style="color:#3B9EFF">➤</span> قناة التليجرام</div>
+      <div class="drawer-item" onclick="openTransactions()"><span class="ic" style="color:#FF9500">🕓</span> سجل العمليات</div>
+      <div class="drawer-item" onclick="openTopup()"><span class="ic" style="color:#4CD964">💲</span> شحن نقاط</div>
+      <div class="drawer-item" onclick="openPlaceholder('متابعة طلبات الشحن')"><span class="ic" style="color:#2DD4C7">◎</span> متابعة طلبات الشحن</div>
+      <div class="drawer-item" onclick="openPlaceholder('الإشعارات')"><span class="ic" style="color:#FFD23F">🔔</span> الإشعارات</div>
+      <div class="drawer-item" onclick="openLink('https://wa.me/@MR_ZlZO')"><span class="ic" style="color:#3B9EFF">💬</span> تواصل معنا</div>
+      <div class="drawer-item" onclick="openLink('https://t.me/SPARTAN1m')"><span class="ic" style="color:#4FD1E8">🌐</span> موقعنا</div>
+      <div class="drawer-item" onclick="openLink('https://t.me/SPARTAN1m')"><span class="ic" style="color:#3B9EFF">➤</span> قناة التليجرام</div>
     </div>
   </div>
 
@@ -207,25 +313,44 @@
 
 </div>
 
+<style>
+  .admin-login{ height:800px; display:flex; flex-direction:column; justify-content:center; padding:30px; background:#0c0c0c; }
+  .admin-login h2{ color:#FFC93C; text-align:center; margin-bottom:20px; font-family:Georgia,serif; }
+  .admin-login input{ width:100%; background:#1B1B1B; border:1px solid #333; color:#eee; padding:13px 16px; border-radius:10px; margin-bottom:12px; }
+  .admin-login button{ width:100%; background:#FFC93C; color:#1a1400; border:none; border-radius:10px; padding:13px; font-weight:800; cursor:pointer; }
+  .admin-err{ color:#E23C3C; font-size:12px; text-align:center; margin-bottom:10px; min-height:14px;}
+  .admin-panel{ padding:18px; background:#101010; min-height:800px; }
+  .admin-panel h3{ color:#fff; font-size:16px; margin:18px 0 10px; }
+  .admin-tabs{ display:flex; gap:8px; margin-bottom:10px; }
+  .admin-tabs button{ flex:1; padding:9px; border-radius:10px; border:1px solid #2a2a2a; background:#171717; color:#ccc; font-size:12.5px; cursor:pointer; }
+  .admin-tabs button.active{ background:#FFC93C; color:#1a1400; border-color:#FFC93C; font-weight:700; }
+  .admin-row{ display:flex; justify-content:space-between; align-items:center; background:#171717; border:1px solid #262626; border-radius:10px; padding:11px 14px; margin-bottom:8px; color:#eee; font-size:13.5px; direction:ltr; text-align:right;}
+  .admin-row button{ background:#3a1414; color:#E23C3C; border:none; border-radius:8px; padding:5px 10px; font-size:11.5px; cursor:pointer; }
+  .admin-add{ display:flex; gap:8px; margin-top:10px; }
+  .admin-add input{ flex:1; background:#171717; border:1px solid #2a2a2a; color:#eee; border-radius:10px; padding:10px; direction:ltr; }
+  .admin-add button{ background:#4CD964; color:#062b0c; border:none; border-radius:10px; padding:0 16px; font-weight:800; cursor:pointer; }
+  .backbtn{ background:none; border:none; color:#999; font-size:13px; cursor:pointer; margin-bottom:10px; }
+</style>
+
 <script>
 let userName = "";
+let userPhone = "";
 let starsBalance = 0;
 let selectedCard = null;
 let cashNumbers = ["01012345678", "01098765432"];
 let permittedUsers = ["01025411874"];
 let logoTapCount = 0;
 let logoTapTimer = null;
+const POINT_PRICE = 2; // مؤقت، هيبقى قابل للتعديل من الأدمن
+const CASH_NUMBER = "01556058014"; // مؤقت، هيبقى قابل للتعديل من الأدمن
 
 const cards = [
-  {id:"Fakka_5_Unite",   label:"فكة 5",   detail:"80 وحدة/ميجا - يومين"},
-  {id:"Fakka_2.5_Unite", label:"فكة 2.5", detail:"20 وحدة + 1 واتساب - صالح 45 يوم"},
-  {id:"TopUp",           label:"شحن الرصيد", detail:"شحن رصيد فودافون"},
-  {id:"Fakka_11.5_Unite",label:"فكة 11.5",detail:"450 وحدة/ميجا - 7 أيام"},
-  {id:"Fakka_10_Unite",  label:"فكة 10",  detail:"300 دقيقة لكل الشبكات أو ميجا - يومين"},
-  {id:"Fakka_9_Unite",   label:"فكة 9",   detail:"400 وحدة + 50 واتساب - 4 أيام"},
-  {id:"Fakka_20_Unite",  label:"فكة 20",  detail:"750 وحدة/ميجا - 10 أيام"},
-  {id:"Fakka_17.5_Unite",label:"فكة 17.5",detail:"650 وحدة/ميجا - 10 أيام"},
-  {id:"Fakka_13.5_Unite",label:"فكة 13.5",detail:"625 وحدة/ميجا - 7 أيام"},
+  {id:"Fakka_6_NewUnite",  label:"فكة 6",   detail:"225 وحدة/ميجا - صالح لـ 4 أيام"},
+  {id:"Fakka_9_Unite",     label:"فكة 9",   detail:"400 وحدة + 50 ميجا واتساب - صالح لـ 4 أيام"},
+  {id:"Fakka_11.5_Unite",  label:"فكة 11.5",detail:"450 وحدة/ميجا - صالح لـ 7 أيام"},
+  {id:"Fakka_13.5_Unite",  label:"فكة 13.5",detail:"625 وحدة/ميجا - صالح لـ 7 أيام"},
+  {id:"Fakka_17.5_Unite",  label:"فكة 17.5",detail:"650 وحدة/ميجا - صالح لـ 10 أيام"},
+  {id:"Fakka_20_Unite",    label:"فكة 20",  detail:"750 وحدة/ميجا - صالح لـ 10 أيام"},
 ];
 
 function renderCards(){
@@ -240,15 +365,69 @@ function renderCards(){
   });
 }
 
-function saveNameAndEnter(){
+// ---------------- app boot: اسم محفوظ + جلب الرقم أوتوماتيك ----------------
+async function initApp(){
+  try{
+    const prefs = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences;
+    if(prefs){
+      const res = await prefs.get({ key: 'spartan_user_name' });
+      if(res && res.value){
+        userName = res.value;
+        enterLoadingThenHome();
+        return;
+      }
+    }
+  }catch(e){}
+  // مفيش اسم محفوظ -> شاشة أول مرة (شغالة بالفعل كـ active)
+}
+
+async function saveNameAndEnter(){
   const v = document.getElementById('fr-name').value.trim();
   if(v.split(/\s+/).filter(Boolean).length < 3){ alert("من فضلك اكتب الاسم ثلاثي"); return; }
   userName = v.split(/\s+/)[0];
+  try{
+    const prefs = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences;
+    if(prefs) await prefs.set({ key: 'spartan_user_name', value: userName });
+  }catch(e){}
+  document.getElementById('view-firstrun').classList.remove('active');
+  enterLoadingThenHome();
+}
+
+function enterLoadingThenHome(){
+  document.getElementById('view-firstrun').classList.remove('active');
+  document.getElementById('view-loading').classList.add('active');
   document.getElementById('greetName').textContent = "مرحباً السيد " + userName;
   document.getElementById('drawerName').textContent = "مرحباً السيد " + userName;
-  document.getElementById('view-firstrun').classList.remove('active');
+  fetchMsisdnThenShowHome();
+}
+
+async function fetchMsisdnThenShowHome(){
+  try{
+    const plugin = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.VodafonePurchase;
+    if(!plugin) throw new Error("بلوجن الاتصال مش متسجل");
+    const res = await plugin.login();
+    userPhone = res.msisdn || "غير معروف";
+  }catch(e){
+    userPhone = "تعذر الجلب — اضغط ⟳ للمحاولة تاني";
+  }
+  document.getElementById('userPhone').textContent = userPhone;
+  document.getElementById('drawerPhone').textContent = userPhone;
+  document.getElementById('view-loading').classList.remove('active');
   document.getElementById('view-home').classList.add('active');
   renderCards();
+}
+
+async function refreshMsisdn(){
+  document.getElementById('userPhone').textContent = "جاري الجلب...";
+  try{
+    const plugin = window.Capacitor.Plugins.VodafonePurchase;
+    const res = await plugin.login();
+    userPhone = res.msisdn || "غير معروف";
+  }catch(e){
+    userPhone = "فشل الجلب";
+  }
+  document.getElementById('userPhone').textContent = userPhone;
+  document.getElementById('drawerPhone').textContent = userPhone;
 }
 
 function updateCounters(){
@@ -264,22 +443,67 @@ async function submitCharge(){
   if(rec.length!==11){ alert("رقم المستلم لازم 11 رقم"); return; }
 
   if(!window.Capacitor || !window.Capacitor.Plugins || !window.Capacitor.Plugins.VodafonePurchase){
-    alert("بلوجن الشراء (VodafonePurchase) مش متسجل — شوف خطوات التركيب في README");
+    alert("بلوجن الشراء (VodafonePurchase) مش متسجل");
     return;
   }
+  showRaw("🔄 جاري تنفيذ الطلب...\n");
   try{
     const result = await window.Capacitor.Plugins.VodafonePurchase.purchase({
       productId: selectedCard, receiver: rec, pin: pin
     });
-    alert("النتيجة: " + JSON.stringify(result));
+    showRaw(result.raw || "لا يوجد رد");
   }catch(e){
-    alert("فشلت العملية: " + (e.message || e));
+    showRaw("❌ خطأ: " + (e.message || e));
   }
 }
+
+function showRaw(text){
+  document.getElementById('rawText').textContent = text;
+  document.getElementById('rawView').classList.add('open');
+}
+function closeRaw(){ document.getElementById('rawView').classList.remove('open'); }
 
 function openDrawer(){ document.getElementById('overlay').classList.add('open'); document.getElementById('drawer').classList.add('open'); }
 function closeDrawer(){ document.getElementById('overlay').classList.remove('open'); document.getElementById('drawer').classList.remove('open'); }
 
+function openLink(url){ window.open(url, '_blank'); }
+
+// ---------------- topup ----------------
+function openTopup(){
+  closeDrawer();
+  document.getElementById('cashNumberText').textContent = CASH_NUMBER;
+  document.getElementById('topupScreen').classList.add('open');
+}
+function closeSub(id){ document.getElementById(id).classList.remove('open'); }
+function updateTopupAmount(){
+  const points = parseInt(document.getElementById('pointsInput').value || "0", 10);
+  document.getElementById('amountField').value = (points * POINT_PRICE).toString();
+}
+function copyCashNumber(){
+  try{ navigator.clipboard.writeText(CASH_NUMBER); }catch(e){}
+  alert("تم نسخ رقم الكاش");
+}
+function confirmTopup(){
+  const points = parseInt(document.getElementById('pointsInput').value || "0", 10);
+  const sender = document.getElementById('senderNumberInput').value;
+  if(points <= 0){ alert("اكتب عدد نقاط صحيح"); return; }
+  if(sender.length !== 11){ alert("رقم اللي حولت منه لازم 11 رقم"); return; }
+  alert("تم استلام طلبك (سيتم ربط الطلب فعليًا بلوحة تحكم الأدمن في الخطوة الجاية)");
+  closeSub('topupScreen');
+}
+
+function openTransactions(){
+  closeDrawer();
+  document.getElementById('transactionsScreen').classList.add('open');
+}
+
+function openPlaceholder(title){
+  closeDrawer();
+  document.getElementById('placeholderTitle').textContent = title;
+  document.getElementById('placeholderScreen').classList.add('open');
+}
+
+// ---------------- hidden admin entry: tap logo 5x within 2s ----------------
 document.getElementById('logoTap').addEventListener('click', ()=>{
   logoTapCount++;
   clearTimeout(logoTapTimer);
@@ -346,6 +570,8 @@ function addPermittedUser(){
   if(v){ permittedUsers.push(v); document.getElementById('newUserNum').value=""; renderUsersList(); }
 }
 function removeUser(i){ permittedUsers.splice(i,1); renderUsersList(); }
+
+initApp();
 </script>
 </body>
 </html>
