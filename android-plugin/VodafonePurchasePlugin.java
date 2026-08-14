@@ -15,6 +15,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.zip.GZIPInputStream;
 
 @CapacitorPlugin(name = "VodafonePurchase")
 public class VodafonePurchasePlugin extends Plugin {
@@ -34,14 +35,39 @@ public class VodafonePurchasePlugin extends Plugin {
         return h;
     }
 
-    private String readStream(InputStream is) throws Exception {
-        BufferedReader r = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+    private boolean isGzip(HttpURLConnection conn) {
+        String enc = conn.getContentEncoding();
+        return enc != null && enc.toLowerCase().contains("gzip");
+    }
+
+    private String readStream(InputStream is, boolean gzip) throws Exception {
+        InputStream actual = gzip ? new GZIPInputStream(is) : is;
+        BufferedReader r = new BufferedReader(new InputStreamReader(actual, "UTF-8"));
         StringBuilder sb = new StringBuilder();
         String line;
-        while ((line = r.readLine()) != null) sb.append(line);
+        while ((line = r.readLine()) != null) sb.append(line).append("\n");
         return sb.toString();
     }
 
+    // ---------------- login() : يجيب رقم المرسل بس (بيتنادى لما التطبيق يفتح) ----------------
+    @PluginMethod
+    public void login(final PluginCall call) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String[] seamless = getSeamlessAndMsisdn();
+                    JSObject result = new JSObject();
+                    result.put("msisdn", seamless[1]);
+                    call.resolve(result);
+                } catch (Exception e) {
+                    call.reject(e.getMessage() != null ? e.getMessage() : "Unknown error");
+                }
+            }
+        }).start();
+    }
+
+    // ---------------- purchase() : نفس السكريبت بالظبط + رد خام كامل ----------------
     @PluginMethod
     public void purchase(final PluginCall call) {
         final String productId = call.getString("productId");
@@ -54,20 +80,53 @@ public class VodafonePurchasePlugin extends Plugin {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                StringBuilder log = new StringBuilder();
                 try {
+                    log.append("🔄 جاري تسجيل الدخول...\n");
                     String[] seamless = getSeamlessAndMsisdn();
                     String seamlessToken = seamless[0];
                     String msisdn = seamless[1];
+                    log.append("✅ الرقم المرسل  ").append(msisdn).append("\n");
+
                     String accessToken = getAccessToken(seamlessToken);
+                    log.append("✅ تم الحصول على التوكن\n");
+
+                    log.append("🔄 تحديث التوكن...\n");
+                    accessToken = getAccessToken(seamlessToken);
+
+                    log.append("🔄 جاري تنفيذ عملية الشراء...\n");
                     Object[] order = placeOrder(productId, receiver, pin, msisdn, accessToken);
+                    int status = (Integer) order[0];
+                    String rawText = (String) order[1];
+
+                    log.append("\n📦 الرد:\n").append(rawText).append("\n");
+
+                    if (status == 200) {
+                        try {
+                            JSONObject j = new JSONObject(rawText);
+                            if (j.has("code") && !j.optString("code").equals("0000")) {
+                                log.append("⚠️ العملية فشلت بسبب: ").append(j.optString("reason", "خطأ غير معروف")).append("\n");
+                            } else {
+                                log.append("✅ تم إرسال الطلب بنجاح (تحقق من رصيدك)\n");
+                            }
+                        } catch (Exception ignore) {
+                            log.append("✅ تم الاستلام\n");
+                        }
+                    } else {
+                        log.append("❌ فشل الاتصال\n");
+                    }
 
                     JSObject result = new JSObject();
-                    result.put("status", (Integer) order[0]);
+                    result.put("status", status);
                     result.put("msisdn", msisdn);
-                    result.put("raw", (String) order[1]);
+                    result.put("raw", log.toString());
                     call.resolve(result);
                 } catch (Exception e) {
-                    call.reject(e.getMessage() != null ? e.getMessage() : "Unknown error");
+                    log.append("\n❌ خطأ: ").append(e.getMessage() != null ? e.getMessage() : "غير معروف").append("\n");
+                    JSObject result = new JSObject();
+                    result.put("status", 0);
+                    result.put("raw", log.toString());
+                    call.resolve(result);
                 }
             }
         }).start();
@@ -81,7 +140,7 @@ public class VodafonePurchasePlugin extends Plugin {
         conn.setRequestProperty("Connection", "Keep-Alive");
 
         if (conn.getResponseCode() != 200) throw new Exception("فشل seamlessToken (" + conn.getResponseCode() + ")");
-        JSONObject data = new JSONObject(readStream(conn.getInputStream()));
+        JSONObject data = new JSONObject(readStream(conn.getInputStream(), isGzip(conn)));
         String rawMsisdn = data.optString("msisdn");
         String formatted = rawMsisdn.startsWith("1") ? "0" + rawMsisdn : rawMsisdn;
         return new String[]{ data.optString("seamlessToken"), formatted };
@@ -107,7 +166,7 @@ public class VodafonePurchasePlugin extends Plugin {
         os.close();
 
         if (conn.getResponseCode() != 200) throw new Exception("فشل access_token (" + conn.getResponseCode() + ")");
-        JSONObject data = new JSONObject(readStream(conn.getInputStream()));
+        JSONObject data = new JSONObject(readStream(conn.getInputStream(), isGzip(conn)));
         return data.optString("access_token");
     }
 
@@ -158,7 +217,7 @@ public class VodafonePurchasePlugin extends Plugin {
 
         int status = conn.getResponseCode();
         InputStream stream = (status >= 200 && status < 300) ? conn.getInputStream() : conn.getErrorStream();
-        String text = readStream(stream);
+        String text = readStream(stream, isGzip(conn));
         return new Object[]{ status, text };
     }
-          }
+                                }
