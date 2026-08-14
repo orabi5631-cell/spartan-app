@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPARTAN</title>
+<style>
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent; font-family:'Segoe UI',Tahoma,sans-serif;}
+  body{ margin:0; background:#0c0c0c; display:flex; justify-content:center; padding:20px 10px; }
+  .phone{ width:390px; max-width:100%; background:#0c0c0c; border-radius:40px; border:10px solid #000; overflow:hidden; box-shadow:0 25px 60px rgba(0,0,0,.5); position:relative; }
+  .screen{ height:800px; overflow-y:auto; scrollbar-width:none; position:relative; background:#101010; }
+  .screen::-webkit-scrollbar{display:none;}
+  .view{ display:none; }
+  .view.active{ display:block; }
+
+  .statusbar{ display:flex; justify-content:space-between; padding:10px 20px 2px; color:#fff; font-size:11px; direction:ltr;}
+  .appbar{
+    background:linear-gradient(180deg,#8A1C1C,#6E1414);
+    display:flex; align-items:center; justify-content:space-between; padding:10px 16px 14px;
+  }
+  .appbar .icon{ color:#fff; font-size:19px; background:none; border:none; cursor:pointer; }
+  .brandmark{ color:#fff; font-weight:800; font-size:20px; letter-spacing:.03em; font-family:Georgia,serif; user-select:none;}
+  .appbar .right{ display:flex; gap:14px; align-items:center; }
+
+  .balance-card{ margin:16px; background:#1B1B1B; border-radius:16px; padding:22px 16px; text-align:center; }
+  .balance-card .hi{ color:#4CD964; font-size:16px; font-weight:700; margin-bottom:4px; }
+  .balance-card .phone{ color:#B9B9B9; font-size:14px; margin-bottom:10px; }
+  .balance-card .num{ color:#E23C3C; font-size:34px; font-weight:800; }
+  .balance-card .lbl{ color:#9a9a9a; font-size:12.5px; margin:4px 0 14px; }
+  .quickrow{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+  .quickrow button{
+    background:#2A2A2A; color:#eee; border:none; border-radius:10px; padding:9px 12px;
+    font-size:12.5px; font-weight:600; cursor:pointer;
+  }
+
+  .section-title{ text-align:center; color:#fff; font-size:19px; font-weight:800; margin:22px 0 14px; }
+
+  .grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding:0 16px; }
+  .card{
+    background:#171717; border:1px solid #2a2a2a; border-radius:12px; padding:12px 8px;
+    text-align:center; cursor:pointer; min-height:78px; display:flex; flex-direction:column; justify-content:center;
+  }
+  .card.selected{ border-color:#E23C3C; background:#2A1414; }
+  .card .t{ color:#fff; font-weight:800; font-size:14.5px; }
+  .card .d{ color:#9a9a9a; font-size:10.5px; margin-top:4px; line-height:1.3; }
+
+  .purchase-box{ padding:16px; display:none; }
+  .purchase-box.show{ display:block; }
+  .field-input{
+    width:100%; background:#171717; border:1px solid #2a2a2a; border-radius:12px; color:#eee;
+    padding:14px 16px; font-size:15px; margin-bottom:6px; direction:ltr; text-align:right;
+  }
+  .field-input.receiver{ border-color:#3B7DD8; }
+  .counter{ text-align:left; color:#777; font-size:11px; margin-bottom:12px; direction:ltr; }
+  .chargebtn{
+    width:100%; background:#C22626; color:#fff; border:none; border-radius:14px; padding:15px;
+    font-size:16px; font-weight:800; cursor:pointer;
+  }
+
+  .overlay{ position:absolute; inset:0; background:rgba(0,0,0,.5); opacity:0; pointer-events:none; transition:.25s; z-index:50; }
+  .overlay.open{ opacity:1; pointer-events:auto; }
+  .drawer{
+    position:absolute; top:0; bottom:0; right:0; width:78%; background:#141414;
+    transform:translateX(100%); transition:.28s; z-index:51; overflow-y:auto;
+  }
+  .drawer.open{ transform:translateX(0); }
+  .drawer-head{ background:linear-gradient(180deg,#8A1C1C,#6E1414); padding:28px 20px 20px; text-align:center; }
+  .drawer-head .avatar{ width:56px; height:56px; border-radius:50%; background:rgba(255,255,255,.15); margin:0 auto 10px; display:flex; align-items:center; justify-content:center; font-size:26px; color:#fff;}
+  .drawer-head .hi{ color:#4CD964; font-weight:700; font-size:15px; }
+  .drawer-head .phone{ color:#ddd; font-size:13px; margin-top:2px; }
+  .drawer-bal{ text-align:center; padding:14px 0; border-bottom:1px solid #262626; color:#eee; font-size:13px; }
+  .drawer-bal b{ color:#FFC93C; }
+  .drawer-list{ padding:6px 0; }
+  .drawer-item{ display:flex; align-items:center; gap:12px; padding:13px 20px; color:#eee; font-size:14px; cursor:pointer; }
+  .drawer-item .ic{ width:26px; text-align:center; font-size:16px; }
+
+  .firstrun{ height:800px; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:30px; background:#101010; }
+  .firstrun h2{ color:#fff; font-family:Georgia,serif; margin-bottom:6px; }
+  .firstrun p{ color:#999; font-size:13px; margin-bottom:24px; text-align:center; }
+  .firstrun input{ width:100%; background:#1B1B1B; border:1px solid #2a2a2a; color:#eee; padding:14px 16px; border-radius:12px; margin-bottom:14px; font-size:15px; }
+  .firstrun button{ width:100%; background:#C22626; color:#fff; border:none; border-radius:12px; padding:14px; font-weight:800; font-size:15px; cursor:pointer; }
+
+  .admin-login{ height:800px; display:flex; flex-direction:column; justify-content:center; padding:30px; background:#0c0c0c; }
+  .admin-login h2{ color:#FFC93C; text-align:center; margin-bottom:20px; font-family:Georgia,serif; }
+  .admin-login input{ width:100%; background:#1B1B1B; border:1px solid #333; color:#eee; padding:13px 16px; border-radius:10px; margin-bottom:12px; }
+  .admin-login button{ width:100%; background:#FFC93C; color:#1a1400; border:none; border-radius:10px; padding:13px; font-weight:800; cursor:pointer; }
+  .admin-err{ color:#E23C3C; font-size:12px; text-align:center; margin-bottom:10px; min-height:14px;}
+
+  .admin-panel{ padding:18px; background:#101010; min-height:800px; }
+  .admin-panel h3{ color:#fff; font-size:16px; margin:18px 0 10px; }
+  .admin-tabs{ display:flex; gap:8px; margin-bottom:10px; }
+  .admin-tabs button{ flex:1; padding:9px; border-radius:10px; border:1px solid #2a2a2a; background:#171717; color:#ccc; font-size:12.5px; cursor:pointer; }
+  .admin-tabs button.active{ background:#FFC93C; color:#1a1400; border-color:#FFC93C; font-weight:700; }
+  .admin-row{ display:flex; justify-content:space-between; align-items:center; background:#171717; border:1px solid #262626; border-radius:10px; padding:11px 14px; margin-bottom:8px; color:#eee; font-size:13.5px; direction:ltr; text-align:right;}
+  .admin-row button{ background:#3a1414; color:#E23C3C; border:none; border-radius:8px; padding:5px 10px; font-size:11.5px; cursor:pointer; }
+  .admin-add{ display:flex; gap:8px; margin-top:10px; }
+  .admin-add input{ flex:1; background:#171717; border:1px solid #2a2a2a; color:#eee; border-radius:10px; padding:10px; direction:ltr; }
+  .admin-add button{ background:#4CD964; color:#062b0c; border:none; border-radius:10px; padding:0 16px; font-weight:800; cursor:pointer; }
+  .backbtn{ background:none; border:none; color:#999; font-size:13px; cursor:pointer; margin-bottom:10px; }
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- FIRST RUN -->
+  <div class="view active" id="view-firstrun">
+    <div class="firstrun">
+      <h2>SPARTAN</h2>
+      <p>أول مرة تفتح التطبيق ع الجهاز ده — اكتب اسمك ثلاثي عشان نرحب بيك بيه في كل مرة</p>
+      <input id="fr-name" placeholder="الاسم ثلاثي" />
+      <button onclick="saveNameAndEnter()">دخول</button>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div class="view" id="view-home">
+    <div class="statusbar"><span>9:41</span><span>VF EG 5G</span></div>
+    <div class="appbar">
+      <button class="icon" onclick="openDrawer()">☰</button>
+      <div class="brandmark" id="logoTap">SPARTAN</div>
+      <div class="right"><span class="icon">🔔</span><span class="icon">⟳</span></div>
+    </div>
+    <div class="screen" style="height:auto; min-height:740px;">
+      <div class="balance-card">
+        <div class="hi" id="greetName">مرحباً السيد</div>
+        <div class="phone">01025411874</div>
+        <div class="num" id="starsBalance">0</div>
+        <div class="lbl">نقاطك</div>
+        <div class="quickrow">
+          <button>السجل</button><button>شحن</button><button>تحويل</button><button>الجروب</button><button>الدعم</button>
+        </div>
+      </div>
+
+      <div class="section-title">اختر الكارت</div>
+      <div class="grid" id="cardGrid"></div>
+
+      <div class="purchase-box" id="purchaseBox">
+        <input class="field-input" id="pinInput" type="password" placeholder="الرقم السري لفودافون كاش (6 أرقام)" maxlength="6" oninput="updateCounters()">
+        <div class="counter" id="pinCounter">0/6</div>
+        <input class="field-input receiver" id="receiverInput" type="tel" placeholder="رقم المستلم" maxlength="11" oninput="updateCounters()">
+        <div class="counter" id="recCounter">0/11</div>
+        <button class="chargebtn" onclick="submitCharge()">شحن</button>
+      </div>
+      <div style="height:20px;"></div>
+    </div>
+  </div>
+
+  <!-- DRAWER + OVERLAY (shared) -->
+  <div class="overlay" id="overlay" onclick="closeDrawer()"></div>
+  <div class="drawer" id="drawer">
+    <div class="drawer-head">
+      <div class="avatar">👤</div>
+      <div class="hi" id="drawerName">مرحباً السيد</div>
+      <div class="phone">01025411874</div>
+    </div>
+    <div class="drawer-bal">رصيدك الحالي: <b id="drawerBalance">0</b></div>
+    <div class="drawer-list">
+      <div class="drawer-item"><span class="ic" style="color:#FF9500">🕓</span> سجل العمليات</div>
+      <div class="drawer-item"><span class="ic" style="color:#4CD964">💲</span> شحن نقاط</div>
+      <div class="drawer-item"><span class="ic" style="color:#B266FF">⇄</span> تحويل نقاط لمستخدم</div>
+      <div class="drawer-item"><span class="ic" style="color:#2DD4C7">◎</span> متابعة طلبات الشحن</div>
+      <div class="drawer-item"><span class="ic" style="color:#FFD23F">🔔</span> الإشعارات</div>
+      <div class="drawer-item"><span class="ic" style="color:#3B9EFF">💬</span> تواصل معنا</div>
+      <div class="drawer-item"><span class="ic" style="color:#8C6BFF">👥</span> جروبات التطبيق</div>
+      <div class="drawer-item"><span class="ic" style="color:#4FD1E8">🌐</span> موقعنا</div>
+      <div class="drawer-item"><span class="ic" style="color:#3B9EFF">➤</span> قناة التليجرام</div>
+    </div>
+  </div>
+
+  <!-- ADMIN LOGIN (hidden entry: tap logo 5x) -->
+  <div class="view" id="view-admin-login">
+    <div class="admin-login">
+      <h2>دخول الأدمن</h2>
+      <div class="admin-err" id="adminErr"></div>
+      <input id="admin-user" placeholder="اسم المستخدم">
+      <input id="admin-pass" type="password" placeholder="كلمة المرور">
+      <button onclick="adminLogin()">دخول</button>
+      <button style="background:none;color:#666;margin-top:14px;font-weight:400;font-size:12px;" onclick="goHome()">رجوع للتطبيق</button>
+    </div>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <div class="view" id="view-admin-panel">
+    <div class="admin-panel">
+      <button class="backbtn" onclick="goHome()">‹ خروج من لوحة التحكم</button>
+      <h3>لوحة تحكم الأدمن</h3>
+      <div class="admin-tabs">
+        <button class="active" id="tab-cash" onclick="switchAdminTab('cash')">أرقام الكاش</button>
+        <button id="tab-users" onclick="switchAdminTab('users')">مستخدمو تحويل النجوم</button>
+      </div>
+      <div id="admin-cash-tab">
+        <div id="cashList"></div>
+        <div class="admin-add">
+          <input id="newCashNum" placeholder="رقم كاش جديد" />
+          <button onclick="addCashNumber()">إضافة</button>
+        </div>
+      </div>
+      <div id="admin-users-tab" style="display:none;">
+        <div id="usersList"></div>
+        <div class="admin-add">
+          <input id="newUserNum" placeholder="رقم المستخدم المسموح له" />
+          <button onclick="addPermittedUser()">إضافة</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let userName = "";
+let starsBalance = 0;
+let selectedCard = null;
+let cashNumbers = ["01012345678", "01098765432"];
+let permittedUsers = ["01025411874"];
+let logoTapCount = 0;
+let logoTapTimer = null;
+
+const cards = [
+  {id:"Fakka_5_Unite",   label:"فكة 5",   detail:"80 وحدة/ميجا - يومين"},
+  {id:"Fakka_2.5_Unite", label:"فكة 2.5", detail:"20 وحدة + 1 واتساب - صالح 45 يوم"},
+  {id:"TopUp",           label:"شحن الرصيد", detail:"شحن رصيد فودافون"},
+  {id:"Fakka_11.5_Unite",label:"فكة 11.5",detail:"450 وحدة/ميجا - 7 أيام"},
+  {id:"Fakka_10_Unite",  label:"فكة 10",  detail:"300 دقيقة لكل الشبكات أو ميجا - يومين"},
+  {id:"Fakka_9_Unite",   label:"فكة 9",   detail:"400 وحدة + 50 واتساب - 4 أيام"},
+  {id:"Fakka_20_Unite",  label:"فكة 20",  detail:"750 وحدة/ميجا - 10 أيام"},
+  {id:"Fakka_17.5_Unite",label:"فكة 17.5",detail:"650 وحدة/ميجا - 10 أيام"},
+  {id:"Fakka_13.5_Unite",label:"فكة 13.5",detail:"625 وحدة/ميجا - 7 أيام"},
+];
+
+function renderCards(){
+  const grid = document.getElementById('cardGrid');
+  grid.innerHTML = "";
+  cards.forEach(c=>{
+    const el = document.createElement('div');
+    el.className = 'card' + (selectedCard===c.id ? ' selected':'');
+    el.innerHTML = `<div class="t">${c.label}</div><div class="d">${c.detail}</div>`;
+    el.onclick = ()=>{ selectedCard = c.id; renderCards(); document.getElementById('purchaseBox').classList.add('show'); };
+    grid.appendChild(el);
+  });
+}
+
+function saveNameAndEnter(){
+  const v = document.getElementById('fr-name').value.trim();
+  if(v.split(/\s+/).filter(Boolean).length < 3){ alert("من فضلك اكتب الاسم ثلاثي"); return; }
+  userName = v.split(/\s+/)[0];
+  document.getElementById('greetName').textContent = "مرحباً السيد " + userName;
+  document.getElementById('drawerName').textContent = "مرحباً السيد " + userName;
+  document.getElementById('view-firstrun').classList.remove('active');
+  document.getElementById('view-home').classList.add('active');
+  renderCards();
+}
+
+function updateCounters(){
+  document.getElementById('pinCounter').textContent = document.getElementById('pinInput').value.length + "/6";
+  document.getElementById('recCounter').textContent = document.getElementById('receiverInput').value.length + "/11";
+}
+
+async function submitCharge(){
+  if(!selectedCard){ alert("اختار كارت الأول"); return; }
+  const pin = document.getElementById('pinInput').value;
+  const rec = document.getElementById('receiverInput').value;
+  if(pin.length!==6){ alert("الرقم السري لازم 6 أرقام"); return; }
+  if(rec.length!==11){ alert("رقم المستلم لازم 11 رقم"); return; }
+
+  if(!window.Capacitor || !window.Capacitor.Plugins || !window.Capacitor.Plugins.VodafonePurchase){
+    alert("بلوجن الشراء (VodafonePurchase) مش متسجل — شوف خطوات التركيب في README");
+    return;
+  }
+  try{
+    const result = await window.Capacitor.Plugins.VodafonePurchase.purchase({
+      productId: selectedCard, receiver: rec, pin: pin
+    });
+    alert("النتيجة: " + JSON.stringify(result));
+  }catch(e){
+    alert("فشلت العملية: " + (e.message || e));
+  }
+}
+
+function openDrawer(){ document.getElementById('overlay').classList.add('open'); document.getElementById('drawer').classList.add('open'); }
+function closeDrawer(){ document.getElementById('overlay').classList.remove('open'); document.getElementById('drawer').classList.remove('open'); }
+
+document.getElementById('logoTap').addEventListener('click', ()=>{
+  logoTapCount++;
+  clearTimeout(logoTapTimer);
+  logoTapTimer = setTimeout(()=>{ logoTapCount = 0; }, 2000);
+  if(logoTapCount >= 5){
+    logoTapCount = 0;
+    document.getElementById('view-home').classList.remove('active');
+    document.getElementById('view-admin-login').classList.add('active');
+  }
+});
+
+function adminLogin(){
+  const u = document.getElementById('admin-user').value;
+  const p = document.getElementById('admin-pass').value;
+  if(u==="admin" && p==="admin123"){
+    document.getElementById('view-admin-login').classList.remove('active');
+    document.getElementById('view-admin-panel').classList.add('active');
+    renderCashList(); renderUsersList();
+  } else {
+    document.getElementById('adminErr').textContent = "بيانات دخول غلط";
+  }
+}
+
+function goHome(){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-home').classList.add('active');
+}
+
+function switchAdminTab(tab){
+  document.getElementById('tab-cash').classList.toggle('active', tab==='cash');
+  document.getElementById('tab-users').classList.toggle('active', tab==='users');
+  document.getElementById('admin-cash-tab').style.display = tab==='cash' ? 'block':'none';
+  document.getElementById('admin-users-tab').style.display = tab==='users' ? 'block':'none';
+}
+
+function renderCashList(){
+  const box = document.getElementById('cashList');
+  box.innerHTML = "";
+  cashNumbers.forEach((n,i)=>{
+    const row = document.createElement('div');
+    row.className = 'admin-row';
+    row.innerHTML = `<span>${n}</span><button onclick="removeCash(${i})">حذف</button>`;
+    box.appendChild(row);
+  });
+}
+function addCashNumber(){
+  const v = document.getElementById('newCashNum').value.trim();
+  if(v){ cashNumbers.push(v); document.getElementById('newCashNum').value=""; renderCashList(); }
+}
+function removeCash(i){ cashNumbers.splice(i,1); renderCashList(); }
+
+function renderUsersList(){
+  const box = document.getElementById('usersList');
+  box.innerHTML = "";
+  permittedUsers.forEach((n,i)=>{
+    const row = document.createElement('div');
+    row.className = 'admin-row';
+    row.innerHTML = `<span>${n}</span><button onclick="removeUser(${i})">حذف</button>`;
+    box.appendChild(row);
+  });
+}
+function addPermittedUser(){
+  const v = document.getElementById('newUserNum').value.trim();
+  if(v){ permittedUsers.push(v); document.getElementById('newUserNum').value=""; renderUsersList(); }
+}
+function removeUser(i){ permittedUsers.splice(i,1); renderUsersList(); }
+</script>
+</body>
+</html>
