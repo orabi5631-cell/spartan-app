@@ -15,22 +15,20 @@
 
   .statusbar{ display:flex; justify-content:space-between; padding:10px 20px 2px; color:#fff; font-size:11px; direction:ltr;}
   .appbar{
-    background:linear-gradient(180deg,#8A1C1C,#6E1414);
-    display:flex; align-items:center; justify-content:space-between; padding:10px 16px 14px;
+    background:#000; border-bottom:2px solid #C22626;
+    display:flex; align-items:center; justify-content:center; padding:14px 16px;
   }
-  .appbar .icon{ color:#fff; font-size:19px; background:none; border:none; cursor:pointer; }
-  .brandmark{ color:#fff; font-weight:800; font-size:20px; letter-spacing:.03em; font-family:Georgia,serif; user-select:none;}
-  .appbar .right{ display:flex; gap:14px; align-items:center; }
+  .brandmark{ color:#E23C3C; font-weight:800; font-size:22px; letter-spacing:.05em; font-family:Georgia,serif; user-select:none;}
 
-  .balance-card{ margin:16px; background:#1B1B1B; border-radius:16px; padding:22px 16px; text-align:center; }
+  .balance-card{ margin:16px; background:#1B1B1B; border-radius:16px; padding:22px 16px; text-align:center; border:1px solid #2a1414;}
   .balance-card .hi{ color:#4CD964; font-size:16px; font-weight:700; margin-bottom:4px; }
   .balance-card .phone{ color:#B9B9B9; font-size:14px; margin-bottom:10px; }
   .balance-card .num{ color:#E23C3C; font-size:34px; font-weight:800; }
   .balance-card .lbl{ color:#9a9a9a; font-size:12.5px; margin:4px 0 14px; }
-  .quickrow{ display:flex; gap:10px; justify-content:center; }
+  .quickrow{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
   .quickrow button{
-    background:#2A2A2A; color:#eee; border:none; border-radius:10px; padding:11px 20px;
-    font-size:13.5px; font-weight:700; cursor:pointer;
+    background:#C22626; color:#fff; border:none; border-radius:10px; padding:10px 12px;
+    font-size:12px; font-weight:700; cursor:pointer; flex:1 1 40%;
   }
 
   .section-title{ text-align:center; color:#fff; font-size:19px; font-weight:800; margin:22px 0 14px; }
@@ -41,52 +39,24 @@
     text-align:center; cursor:pointer; min-height:78px; display:flex; flex-direction:column; justify-content:center;
   }
   .card.selected{ border-color:#E23C3C; background:#2A1414; }
-  .card .t{ color:#fff; font-weight:800; font-size:14.5px; }
-  .card .d{ color:#9a9a9a; font-size:10.5px; margin-top:4px; line-height:1.3; }
+  .card.special{ border-color:#C22626; background:#1a0e0e; }
+  .card .t{ color:#fff; font-weight:800; font-size:14px; }
+  .card .d{ color:#9a9a9a; font-size:10px; margin-top:4px; line-height:1.3; }
 
-  .purchase-box{ padding:16px; display:none; }
-  .purchase-box.show{ display:block; }
+  .purchase-box{ padding:16px; }
+  .field-wrap{ position:relative; }
   .field-input{
     width:100%; background:#171717; border:1px solid #2a2a2a; border-radius:12px; color:#eee;
-    padding:14px 16px; font-size:15px; margin-bottom:6px; direction:ltr; text-align:right;
+    padding:14px 44px 14px 16px; font-size:15px; margin-bottom:6px; direction:ltr; text-align:right;
   }
-  .field-input.receiver{ border-color:#3B7DD8; }
+  .field-input.receiver{ border-color:#3B7DD8; padding:14px 16px; }
+  .eye-toggle{ position:absolute; left:14px; top:14px; background:none; border:none; color:#999; font-size:15px; cursor:pointer; }
   .counter{ text-align:left; color:#777; font-size:11px; margin-bottom:12px; direction:ltr; }
   .chargebtn{
     width:100%; background:#C22626; color:#fff; border:none; border-radius:14px; padding:15px;
     font-size:16px; font-weight:800; cursor:pointer;
   }
 
-  .overlay{ position:absolute; inset:0; background:rgba(0,0,0,.5); opacity:0; pointer-events:none; transition:.25s; z-index:50; }
-  .overlay.open{ opacity:1; pointer-events:auto; }
-  .drawer{
-    position:absolute; top:0; bottom:0; right:0; width:78%; background:#141414;
-    transform:translateX(100%); transition:.28s; z-index:51; overflow-y:auto;
-  }
-  .drawer.open{ transform:translateX(0); }
-  .drawer-head{ background:linear-gradient(180deg,#8A1C1C,#6E1414); padding:28px 20px 20px; text-align:center; }
-  .drawer-head .avatar{ width:56px; height:56px; border-radius:50%; background:rgba(255,255,255,.15); margin:0 auto 10px; display:flex; align-items:center; justify-content:center; font-size:26px; color:#fff;}
-  .drawer-head .hi{ color:#4CD964; font-weight:700; font-size:15px; }
-  .drawer-head .phone{ color:#ddd; font-size:13px; margin-top:2px; }
-  .drawer-bal{ text-align:center; padding:14px 0; border-bottom:1px solid #262626; color:#eee; font-size:13px; }
-  .drawer-bal b{ color:#FFC93C; }
-  .drawer-list{ padding:6px 0; }
-  .drawer-item{ display:flex; align-items:center; gap:12px; padding:13px 20px; color:#eee; font-size:14px; cursor:pointer; }
-  .drawer-item .ic{ width:26px; text-align:center; font-size:16px; }
-
-  .firstrun{ height:800px; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:30px; background:#101010; }
-  .firstrun h2{ color:#fff; font-family:Georgia,serif; margin-bottom:6px; }
-  .firstrun p{ color:#999; font-size:13px; margin-bottom:24px; text-align:center; }
-  .firstrun input{ width:100%; background:#1B1B1B; border:1px solid #2a2a2a; color:#eee; padding:14px 16px; border-radius:12px; margin-bottom:14px; font-size:15px; }
-  .firstrun button{ width:100%; background:#C22626; color:#fff; border:none; border-radius:12px; padding:14px; font-weight:800; font-size:15px; cursor:pointer; }
-
-  .loading{ height:800px; display:flex; flex-direction:column; justify-content:center; align-items:center; background:#0c0f14; }
-  .loading .dot{ width:8px; height:8px; background:#4CD964; border-radius:50%; margin-bottom:26px; animation:pulse 1s infinite; }
-  @keyframes pulse{ 0%,100%{opacity:.3;} 50%{opacity:1;} }
-  .loading h3{ color:#eee; font-weight:700; font-size:16px; margin:0 0 6px; }
-  .loading p{ color:#888; font-size:12.5px; margin:0; }
-
-  /* raw output view */
   .raw-view{ position:absolute; inset:0; background:#0a0a0a; z-index:60; display:none; flex-direction:column; }
   .raw-view.open{ display:flex; }
   .raw-head{ display:flex; align-items:center; justify-content:space-between; padding:16px; border-bottom:1px solid #232323; }
@@ -95,40 +65,59 @@
   .raw-body{ flex:1; overflow-y:auto; padding:14px; }
   .raw-body pre{ color:#8FE38F; font-family:'IBM Plex Mono',monospace; font-size:12px; white-space:pre-wrap; word-break:break-word; margin:0; direction:ltr; text-align:left; line-height:1.6; }
 
-  /* sub screens (topup / transactions / placeholder) */
   .subscreen{ position:absolute; inset:0; background:#101010; z-index:55; display:none; flex-direction:column; }
   .subscreen.open{ display:flex; }
-  .sub-head{ display:flex; align-items:center; gap:10px; padding:16px; border-bottom:1px solid #232323; }
+  .sub-head{ display:flex; align-items:center; gap:10px; padding:16px; border-bottom:1px solid #232323; background:#000; }
   .sub-head button{ background:none; border:none; color:#eee; font-size:20px; cursor:pointer; }
   .sub-head h3{ color:#fff; font-size:16px; margin:0; }
   .sub-body{ flex:1; overflow-y:auto; padding:20px; }
   .sub-empty{ color:#777; text-align:center; margin-top:60px; font-size:13.5px; line-height:1.8; }
 
-  .topup-field{ margin-bottom:16px; }
-  .topup-field label{ display:block; color:#999; font-size:12px; margin-bottom:6px; }
-  .topup-field .box{
-    display:flex; align-items:center; gap:10px; background:#171717; border:1px solid #2a2a2a;
-    border-radius:12px; padding:13px 16px;
-  }
-  .topup-field .box.blue{ border-color:#3B7DD8; }
-  .topup-field .box.green{ border-color:#3FBF6B; }
-  .topup-field .box input{ flex:1; background:none; border:none; color:#eee; font-size:16px; outline:none; direction:ltr; text-align:right; }
-  .topup-field .box .sym{ color:#eee; font-size:16px; font-weight:700; }
-  .cashbox{ background:#171717; border:1px solid #2a2a2a; border-radius:12px; padding:14px 16px; margin-bottom:14px; }
+  .points-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .points-btn{ background:#C22626; color:#fff; border:none; border-radius:12px; padding:16px 0; font-size:18px; font-weight:800; cursor:pointer; }
+  .topup-summary{ background:#171717; border:1px solid #2a2a2a; border-radius:12px; padding:16px; margin-top:16px; color:#eee; }
+  .topup-summary b{ color:#4CD964; }
+  .cashbox{ background:#171717; border:1px solid #2a2a2a; border-radius:12px; padding:14px 16px; margin:14px 0; }
   .cashbox .lbl{ color:#999; font-size:12px; margin-bottom:8px; }
   .cashbox .row{ display:flex; align-items:center; justify-content:space-between; }
   .cashbox .num{ color:#4CD964; font-size:18px; font-weight:800; direction:ltr; }
   .cashbox button{ background:none; border:none; color:#aaa; font-size:16px; cursor:pointer; }
+  .file-box{ background:#171717; border:1px dashed #444; border-radius:12px; padding:18px; text-align:center; color:#999; font-size:13px; cursor:pointer; margin-bottom:14px; }
+  .file-box.has-file{ border-color:#4CD964; color:#4CD964; }
   .topup-actions{ display:flex; gap:10px; margin-top:20px; }
   .topup-actions button{ flex:1; padding:13px; border-radius:12px; border:none; font-weight:800; font-size:14px; cursor:pointer; }
   .btn-confirm{ background:#2E6FE0; color:#fff; }
-  .btn-cancel{ background:#C22626; color:#fff; }
+  .btn-cancel{ background:#333; color:#eee; }
+
+  .log-item{ background:#171717; border:1px solid #262626; border-radius:10px; padding:12px 14px; margin-bottom:8px; }
+  .log-item .msg{ color:#eee; font-size:13.5px; }
+  .log-item .time{ color:#777; font-size:10.5px; margin-top:4px; direction:ltr; text-align:left; }
+
+  .chat-body{ flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:10px; }
+  .bubble{ max-width:78%; padding:10px 14px; border-radius:14px; font-size:13.5px; line-height:1.5; }
+  .bubble.user{ align-self:flex-start; background:#C22626; color:#fff; border-bottom-left-radius:4px; }
+  .bubble.admin{ align-self:flex-end; background:#232323; color:#eee; border-bottom-right-radius:4px; }
+  .bubble .t{ font-size:9.5px; opacity:.7; margin-top:4px; direction:ltr; text-align:left;}
+  .chat-input-row{ display:flex; gap:8px; padding:12px; border-top:1px solid #232323; background:#0c0c0c; }
+  .chat-input-row input{ flex:1; background:#171717; border:1px solid #2a2a2a; border-radius:20px; padding:11px 16px; color:#eee; font-size:13.5px; }
+  .chat-input-row button{ background:#C22626; color:#fff; border:none; border-radius:20px; padding:0 18px; font-weight:800; cursor:pointer; }
+
+  .firstrun{ height:800px; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:30px; background:#101010; }
+  .firstrun h2{ color:#E23C3C; font-family:Georgia,serif; margin-bottom:6px; }
+  .firstrun p{ color:#999; font-size:13px; margin-bottom:24px; text-align:center; }
+  .firstrun input{ width:100%; background:#1B1B1B; border:1px solid #2a2a2a; color:#eee; padding:14px 16px; border-radius:12px; margin-bottom:14px; font-size:15px; }
+  .firstrun button{ width:100%; background:#C22626; color:#fff; border:none; border-radius:12px; padding:14px; font-weight:800; font-size:15px; cursor:pointer; }
+
+  .loading{ height:800px; display:flex; flex-direction:column; justify-content:center; align-items:center; background:#0c0f14; }
+  .loading .dot{ width:8px; height:8px; background:#E23C3C; border-radius:50%; margin-bottom:26px; animation:pulse 1s infinite; }
+  @keyframes pulse{ 0%,100%{opacity:.3;} 50%{opacity:1;} }
+  .loading h3{ color:#eee; font-weight:700; font-size:16px; margin:0 0 6px; }
+  .loading p{ color:#888; font-size:12.5px; margin:0; }
 </style>
 </head>
 <body>
 <div class="phone">
 
-  <!-- FIRST RUN -->
   <div class="view active" id="view-firstrun">
     <div class="firstrun">
       <h2>SPARTAN</h2>
@@ -138,7 +127,6 @@
     </div>
   </div>
 
-  <!-- LOADING -->
   <div class="view" id="view-loading">
     <div class="loading">
       <div class="dot"></div>
@@ -147,14 +135,9 @@
     </div>
   </div>
 
-  <!-- HOME -->
   <div class="view" id="view-home">
     <div class="statusbar"><span>9:41</span><span>VF EG 5G</span></div>
-    <div class="appbar">
-      <button class="icon" onclick="openDrawer()">☰</button>
-      <div class="brandmark" id="logoTap">SPARTAN</div>
-      <div class="right"><span class="icon">🔔</span><span class="icon" onclick="refreshMsisdn()">⟳</span></div>
-    </div>
+    <div class="appbar"><div class="brandmark">SPARTAN</div></div>
     <div class="screen" style="height:auto; min-height:740px; position:relative;">
       <div class="balance-card">
         <div class="hi" id="greetName">مرحباً السيد</div>
@@ -162,16 +145,21 @@
         <div class="num" id="starsBalance">0</div>
         <div class="lbl">نقاطك</div>
         <div class="quickrow">
-          <button onclick="openTopup()">شحن نقاط</button>
-          <button onclick="openTransactions()">سجل المعاملات</button>
+          <button onclick="openActivity()">سجل العمليات</button>
+          <button onclick="openTopup()">طلب رصيد</button>
+          <button onclick="openContact()">تواصل معنا</button>
+          <button onclick="location.reload()">تحديث البيانات</button>
         </div>
       </div>
 
       <div class="section-title">اختر الكارت</div>
       <div class="grid" id="cardGrid"></div>
 
-      <div class="purchase-box" id="purchaseBox">
-        <input class="field-input" id="pinInput" type="password" placeholder="الرقم السري لفودافون كاش (6 أرقام)" maxlength="6" oninput="updateCounters()">
+      <div class="purchase-box">
+        <div class="field-wrap">
+          <input class="field-input" id="pinInput" type="password" placeholder="الرقم السري لفودافون كاش (6 أرقام)" maxlength="6" oninput="updateCounters()">
+          <button class="eye-toggle" onclick="togglePin()">👁</button>
+        </div>
         <div class="counter" id="pinCounter">0/6</div>
         <input class="field-input receiver" id="receiverInput" type="tel" placeholder="رقم المستلم" maxlength="11" oninput="updateCounters()">
         <div class="counter" id="recCounter">0/11</div>
@@ -179,133 +167,57 @@
       </div>
       <div style="height:20px;"></div>
 
-      <!-- RAW OUTPUT -->
       <div class="raw-view" id="rawView">
-        <div class="raw-head">
-          <h3>الرد الخام</h3>
-          <button onclick="closeRaw()">إغلاق</button>
-        </div>
+        <div class="raw-head"><h3>الرد الخام</h3><button onclick="closeRaw()">إغلاق</button></div>
         <div class="raw-body"><pre id="rawText"></pre></div>
       </div>
 
-      <!-- TOPUP -->
       <div class="subscreen" id="topupScreen">
-        <div class="sub-head">
-          <button onclick="closeSub('topupScreen')">›</button>
-          <h3>طلب شحن نقاط</h3>
-        </div>
+        <div class="sub-head"><button onclick="closeSub('topupScreen')">›</button><h3>طلب رصيد</h3></div>
         <div class="sub-body">
-          <div class="topup-field">
-            <label>عدد النقاط</label>
-            <div class="box blue">
-              <span class="sym">★</span>
-              <input id="pointsInput" type="number" min="1" oninput="updateTopupAmount()" placeholder="0">
+          <div id="topupStepA">
+            <p style="color:#999;font-size:13px;">اختار عدد النقاط اللي عايز تشحنها</p>
+            <div class="points-grid" id="pointsGrid"></div>
+          </div>
+          <div id="topupStepB" style="display:none;">
+            <div class="topup-summary">
+              عدد النقاط: <b id="sumPoints">0</b><br>
+              المبلغ المطلوب: <b id="sumAmount">0</b> جنيه
+            </div>
+            <div class="topup-actions">
+              <button class="btn-confirm" onclick="confirmPointsChoice()">تأكيد الإرسال</button>
+              <button class="btn-cancel" onclick="backToStepA()">رجوع</button>
             </div>
           </div>
-          <div class="topup-field">
-            <label>المبلغ المطلوب تحويله (جنيه)</label>
-            <div class="box green">
-              <span class="sym">$</span>
-              <input id="amountField" type="text" readonly value="0">
+          <div id="topupStepC" style="display:none;">
+            <div class="cashbox">
+              <div class="lbl">حوّل ثمن النقاط هنا</div>
+              <div class="row"><span class="num" id="cashNumberText">01556058014</span><button onclick="copyCashNumber()">⧉</button></div>
+            </div>
+            <div class="file-box" id="fileBox" onclick="document.getElementById('screenshotInput').click()">📎 اضغط هنا وارفع سكرين شوت التحويل</div>
+            <input type="file" id="screenshotInput" accept="image/*" style="display:none;" onchange="onScreenshotChosen(event)">
+            <input class="field-input" id="senderNumberInput" type="tel" maxlength="11" placeholder="الرقم اللي حولت منه" style="margin-top:10px;">
+            <div class="topup-actions">
+              <button class="btn-confirm" onclick="submitTopupRequest()">إرسال الطلب</button>
+              <button class="btn-cancel" onclick="closeSub('topupScreen')">إلغاء</button>
             </div>
           </div>
-          <div class="cashbox">
-            <div class="lbl">حوّل الكاش هنا</div>
-            <div class="row">
-              <span class="num" id="cashNumberText">01556058014</span>
-              <button onclick="copyCashNumber()">⧉</button>
-            </div>
-          </div>
-          <div class="topup-field">
-            <label>الرقم اللي حولت منه</label>
-            <div class="box">
-              <input id="senderNumberInput" type="tel" maxlength="11" placeholder="01xxxxxxxxx">
-            </div>
-          </div>
-          <div class="topup-actions">
-            <button class="btn-confirm" onclick="confirmTopup()">تأكيد الطلب</button>
-            <button class="btn-cancel" onclick="closeSub('topupScreen')">إلغاء</button>
-          </div>
         </div>
       </div>
 
-      <!-- TRANSACTIONS -->
-      <div class="subscreen" id="transactionsScreen">
-        <div class="sub-head">
-          <button onclick="closeSub('transactionsScreen')">›</button>
-          <h3>سجل المعاملات</h3>
-        </div>
-        <div class="sub-body">
-          <div class="sub-empty">مفيش عمليات شحن مسجلة لسه.<br>السجل هيتفعّل لما نربط لوحة تحكم الأدمن.</div>
+      <div class="subscreen" id="activityScreen">
+        <div class="sub-head"><button onclick="closeSub('activityScreen')">›</button><h3>سجل العمليات</h3></div>
+        <div class="sub-body" id="activityBody">
+          <div class="sub-empty">جاري التحميل...</div>
         </div>
       </div>
 
-      <!-- PLACEHOLDER (طلبات الشحن / الإشعارات) -->
-      <div class="subscreen" id="placeholderScreen">
-        <div class="sub-head">
-          <button onclick="closeSub('placeholderScreen')">›</button>
-          <h3 id="placeholderTitle">قريبًا</h3>
-        </div>
-        <div class="sub-body">
-          <div class="sub-empty" id="placeholderText">الميزة دي هتتفعّل مع لوحة تحكم الأدمن.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- DRAWER + OVERLAY -->
-  <div class="overlay" id="overlay" onclick="closeDrawer()"></div>
-  <div class="drawer" id="drawer">
-    <div class="drawer-head">
-      <div class="avatar">👤</div>
-      <div class="hi" id="drawerName">مرحباً السيد</div>
-      <div class="phone" id="drawerPhone">جاري الجلب...</div>
-    </div>
-    <div class="drawer-bal">رصيدك الحالي: <b id="drawerBalance">0</b></div>
-    <div class="drawer-list">
-      <div class="drawer-item" onclick="openTransactions()"><span class="ic" style="color:#FF9500">🕓</span> سجل العمليات</div>
-      <div class="drawer-item" onclick="openTopup()"><span class="ic" style="color:#4CD964">💲</span> شحن نقاط</div>
-      <div class="drawer-item" onclick="openPlaceholder('متابعة طلبات الشحن')"><span class="ic" style="color:#2DD4C7">◎</span> متابعة طلبات الشحن</div>
-      <div class="drawer-item" onclick="openPlaceholder('الإشعارات')"><span class="ic" style="color:#FFD23F">🔔</span> الإشعارات</div>
-      <div class="drawer-item" onclick="openLink('https://wa.me/@MR_ZlZO')"><span class="ic" style="color:#3B9EFF">💬</span> تواصل معنا</div>
-      <div class="drawer-item" onclick="openLink('https://t.me/SPARTAN1m')"><span class="ic" style="color:#4FD1E8">🌐</span> موقعنا</div>
-      <div class="drawer-item" onclick="openLink('https://t.me/SPARTAN1m')"><span class="ic" style="color:#3B9EFF">➤</span> قناة التليجرام</div>
-    </div>
-  </div>
-
-  <!-- ADMIN LOGIN (hidden entry: tap logo 5x) -->
-  <div class="view" id="view-admin-login">
-    <div class="admin-login">
-      <h2>دخول الأدمن</h2>
-      <div class="admin-err" id="adminErr"></div>
-      <input id="admin-user" placeholder="اسم المستخدم">
-      <input id="admin-pass" type="password" placeholder="كلمة المرور">
-      <button onclick="adminLogin()">دخول</button>
-      <button style="background:none;color:#666;margin-top:14px;font-weight:400;font-size:12px;" onclick="goHome()">رجوع للتطبيق</button>
-    </div>
-  </div>
-
-  <!-- ADMIN PANEL -->
-  <div class="view" id="view-admin-panel">
-    <div class="admin-panel">
-      <button class="backbtn" onclick="goHome()">‹ خروج من لوحة التحكم</button>
-      <h3>لوحة تحكم الأدمن</h3>
-      <div class="admin-tabs">
-        <button class="active" id="tab-cash" onclick="switchAdminTab('cash')">أرقام الكاش</button>
-        <button id="tab-users" onclick="switchAdminTab('users')">مستخدمو تحويل النجوم</button>
-      </div>
-      <div id="admin-cash-tab">
-        <div id="cashList"></div>
-        <div class="admin-add">
-          <input id="newCashNum" placeholder="رقم كاش جديد" />
-          <button onclick="addCashNumber()">إضافة</button>
-        </div>
-      </div>
-      <div id="admin-users-tab" style="display:none;">
-        <div id="usersList"></div>
-        <div class="admin-add">
-          <input id="newUserNum" placeholder="رقم المستخدم المسموح له" />
-          <button onclick="addPermittedUser()">إضافة</button>
+      <div class="subscreen" id="contactScreen" style="display:none;">
+        <div class="sub-head"><button onclick="closeSub('contactScreen')">›</button><h3>تواصل معنا</h3></div>
+        <div class="chat-body" id="chatBody"></div>
+        <div class="chat-input-row">
+          <input id="chatInput" placeholder="اكتب رسالتك...">
+          <button onclick="sendChatMessage()">إرسال</button>
         </div>
       </div>
     </div>
@@ -313,45 +225,31 @@
 
 </div>
 
-<style>
-  .admin-login{ height:800px; display:flex; flex-direction:column; justify-content:center; padding:30px; background:#0c0c0c; }
-  .admin-login h2{ color:#FFC93C; text-align:center; margin-bottom:20px; font-family:Georgia,serif; }
-  .admin-login input{ width:100%; background:#1B1B1B; border:1px solid #333; color:#eee; padding:13px 16px; border-radius:10px; margin-bottom:12px; }
-  .admin-login button{ width:100%; background:#FFC93C; color:#1a1400; border:none; border-radius:10px; padding:13px; font-weight:800; cursor:pointer; }
-  .admin-err{ color:#E23C3C; font-size:12px; text-align:center; margin-bottom:10px; min-height:14px;}
-  .admin-panel{ padding:18px; background:#101010; min-height:800px; }
-  .admin-panel h3{ color:#fff; font-size:16px; margin:18px 0 10px; }
-  .admin-tabs{ display:flex; gap:8px; margin-bottom:10px; }
-  .admin-tabs button{ flex:1; padding:9px; border-radius:10px; border:1px solid #2a2a2a; background:#171717; color:#ccc; font-size:12.5px; cursor:pointer; }
-  .admin-tabs button.active{ background:#FFC93C; color:#1a1400; border-color:#FFC93C; font-weight:700; }
-  .admin-row{ display:flex; justify-content:space-between; align-items:center; background:#171717; border:1px solid #262626; border-radius:10px; padding:11px 14px; margin-bottom:8px; color:#eee; font-size:13.5px; direction:ltr; text-align:right;}
-  .admin-row button{ background:#3a1414; color:#E23C3C; border:none; border-radius:8px; padding:5px 10px; font-size:11.5px; cursor:pointer; }
-  .admin-add{ display:flex; gap:8px; margin-top:10px; }
-  .admin-add input{ flex:1; background:#171717; border:1px solid #2a2a2a; color:#eee; border-radius:10px; padding:10px; direction:ltr; }
-  .admin-add button{ background:#4CD964; color:#062b0c; border:none; border-radius:10px; padding:0 16px; font-weight:800; cursor:pointer; }
-  .backbtn{ background:none; border:none; color:#999; font-size:13px; cursor:pointer; margin-bottom:10px; }
-</style>
-
 <script>
 let userName = "";
 let userPhone = "";
 let starsBalance = 0;
 let selectedCard = null;
-let cashNumbers = ["01012345678", "01098765432"];
-let permittedUsers = ["01025411874"];
-let logoTapCount = 0;
-let logoTapTimer = null;
-const POINT_PRICE = 2; // مؤقت، هيبقى قابل للتعديل من الأدمن
-const CASH_NUMBER = "01556058014"; // مؤقت، هيبقى قابل للتعديل من الأدمن
+let selectedPoints = 0;
+let screenshotBase64 = null;
+
+const POINT_PRICE = 2;
+const CASH_NUMBER = "01556058014";
+const BACKEND_URL = "PUT_YOUR_BACKEND_URL_HERE";
+const POINT_OPTIONS = [10, 15, 20, 25, 30, 35, 40];
 
 const cards = [
-  {id:"Fakka_6_NewUnite",  label:"فكة 6",   detail:"225 وحدة/ميجا - صالح لـ 4 أيام"},
-  {id:"Fakka_9_Unite",     label:"فكة 9",   detail:"400 وحدة + 50 ميجا واتساب - صالح لـ 4 أيام"},
-  {id:"Fakka_11.5_Unite",  label:"فكة 11.5",detail:"450 وحدة/ميجا - صالح لـ 7 أيام"},
-  {id:"Fakka_13.5_Unite",  label:"فكة 13.5",detail:"625 وحدة/ميجا - صالح لـ 7 أيام"},
-  {id:"Fakka_17.5_Unite",  label:"فكة 17.5",detail:"650 وحدة/ميجا - صالح لـ 10 أيام"},
-  {id:"Fakka_20_Unite",    label:"فكة 20",  detail:"750 وحدة/ميجا - صالح لـ 10 أيام"},
+  {id:"Fakka_2.5_Unite",  label:"فكة 2.5", detail:"45 وحدة + 20 ميجا واتساب - صالح ليوم واحد"},
+  {id:"Fakka_4.25_Unite", label:"فكة 4.25",detail:"190 وحدة/ميجا - صالح ليوم واحد"},
+  {id:"Fakka_6_NewUnite", label:"فكة 5",   detail:"225 وحدة/ميجا - صالح ليوم واحد"},
+  {id:"Fakka_9_Unite",    label:"فكة 9",   detail:"400 وحدة + 50 ميجا واتساب - صالح لـ 4 أيام"},
+  {id:"Fakka_11.5_Unite", label:"فكة 11.5",detail:"450 وحدة/ميجا - صالح لـ 7 أيام"},
+  {id:"Fakka_13.5_Unite", label:"فكة 13.5",detail:"625 وحدة/ميجا - صالح لـ 7 أيام"},
+  {id:"Fakka_17.5_Unite", label:"فكة 17.5",detail:"650 وحدة/ميجا - صالح لـ 10 أيام"},
+  {id:"Fakka_20_Unite",   label:"فكة 20",  detail:"750 وحدة/ميجا - صالح لـ 10 أيام"},
 ];
+
+function backendReady(){ return BACKEND_URL.indexOf("PUT_YOUR") !== 0; }
 
 function renderCards(){
   const grid = document.getElementById('cardGrid');
@@ -360,25 +258,29 @@ function renderCards(){
     const el = document.createElement('div');
     el.className = 'card' + (selectedCard===c.id ? ' selected':'');
     el.innerHTML = `<div class="t">${c.label}</div><div class="d">${c.detail}</div>`;
-    el.onclick = ()=>{ selectedCard = c.id; renderCards(); document.getElementById('purchaseBox').classList.add('show'); };
+    el.onclick = ()=>{ selectedCard = c.id; renderCards(); };
     grid.appendChild(el);
   });
+  const special = document.createElement('div');
+  special.className = 'card special';
+  special.innerHTML = `<div class="t">شحن رصيد</div><div class="d">تحت التطوير</div>`;
+  special.onclick = ()=> alert("الزرار ده تحت التطوير");
+  grid.appendChild(special);
 }
 
-// ---------------- app boot: اسم محفوظ + جلب الرقم أوتوماتيك ----------------
+function togglePin(){
+  const el = document.getElementById('pinInput');
+  el.type = el.type === 'password' ? 'text' : 'password';
+}
+
 async function initApp(){
   try{
     const prefs = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences;
     if(prefs){
       const res = await prefs.get({ key: 'spartan_user_name' });
-      if(res && res.value){
-        userName = res.value;
-        enterLoadingThenHome();
-        return;
-      }
+      if(res && res.value){ userName = res.value; enterLoadingThenHome(); return; }
     }
   }catch(e){}
-  // مفيش اسم محفوظ -> شاشة أول مرة (شغالة بالفعل كـ active)
 }
 
 async function saveNameAndEnter(){
@@ -397,7 +299,6 @@ function enterLoadingThenHome(){
   document.getElementById('view-firstrun').classList.remove('active');
   document.getElementById('view-loading').classList.add('active');
   document.getElementById('greetName').textContent = "مرحباً السيد " + userName;
-  document.getElementById('drawerName').textContent = "مرحباً السيد " + userName;
   fetchMsisdnThenShowHome();
 }
 
@@ -408,31 +309,44 @@ async function fetchMsisdnThenShowHome(){
     const res = await plugin.login();
     userPhone = res.msisdn || "غير معروف";
   }catch(e){
-    userPhone = "تعذر الجلب — اضغط ⟳ للمحاولة تاني";
+    userPhone = "تعذر الجلب";
   }
+
   document.getElementById('userPhone').textContent = userPhone;
-  document.getElementById('drawerPhone').textContent = userPhone;
   document.getElementById('view-loading').classList.remove('active');
   document.getElementById('view-home').classList.add('active');
   renderCards();
+  fetchBalance();
+  checkBanners();
 }
 
-async function refreshMsisdn(){
-  document.getElementById('userPhone').textContent = "جاري الجلب...";
+async function fetchBalance(){
+  if(!backendReady()) return;
   try{
-    const plugin = window.Capacitor.Plugins.VodafonePurchase;
-    const res = await plugin.login();
-    userPhone = res.msisdn || "غير معروف";
-  }catch(e){
-    userPhone = "فشل الجلب";
-  }
-  document.getElementById('userPhone').textContent = userPhone;
-  document.getElementById('drawerPhone').textContent = userPhone;
+    const res = await fetch(BACKEND_URL + "/balance/" + userPhone);
+    const data = await res.json();
+    starsBalance = data.stars || 0;
+    document.getElementById('starsBalance').textContent = starsBalance;
+  }catch(e){}
+}
+
+async function checkBanners(){
+  if(!backendReady()) return;
+  try{
+    const res = await fetch(BACKEND_URL + "/banners/" + userPhone);
+    const banners = await res.json();
+    if(banners.length){ alert("📣 " + banners[0].message); }
+  }catch(e){}
 }
 
 function updateCounters(){
   document.getElementById('pinCounter').textContent = document.getElementById('pinInput').value.length + "/6";
   document.getElementById('recCounter').textContent = document.getElementById('receiverInput').value.length + "/11";
+}
+
+async function logActivity(message){
+  if(!backendReady()) return;
+  try{ await fetch(BACKEND_URL + "/activity", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({msisdn:userPhone, message}) }); }catch(e){}
 }
 
 async function submitCharge(){
@@ -441,135 +355,150 @@ async function submitCharge(){
   const rec = document.getElementById('receiverInput').value;
   if(pin.length!==6){ alert("الرقم السري لازم 6 أرقام"); return; }
   if(rec.length!==11){ alert("رقم المستلم لازم 11 رقم"); return; }
-
   if(!window.Capacitor || !window.Capacitor.Plugins || !window.Capacitor.Plugins.VodafonePurchase){
-    alert("بلوجن الشراء (VodafonePurchase) مش متسجل");
-    return;
+    alert("بلوجن الشراء مش متسجل"); return;
   }
+
+  if(backendReady()){
+    try{
+      const dres = await fetch(BACKEND_URL + "/deduct-point/" + userPhone, { method:"POST" });
+      if(dres.status === 402){ alert("رصيدك من النقاط خلص — اطلب رصيد الأول"); openTopup(); return; }
+      const ddata = await dres.json();
+      starsBalance = ddata.stars;
+      document.getElementById('starsBalance').textContent = starsBalance;
+    }catch(e){ alert("تعذر التحقق من رصيد النقاط"); return; }
+  }
+
+  const cardLabel = (cards.find(c=>c.id===selectedCard)||{}).label || selectedCard;
   showRaw("🔄 جاري تنفيذ الطلب...\n");
   try{
-    const result = await window.Capacitor.Plugins.VodafonePurchase.purchase({
-      productId: selectedCard, receiver: rec, pin: pin
-    });
+    const result = await window.Capacitor.Plugins.VodafonePurchase.purchase({ productId: selectedCard, receiver: rec, pin: pin });
     showRaw(result.raw || "لا يوجد رد");
+    logActivity(`تم شحن كارت ${cardLabel} لرقم ${rec}`);
   }catch(e){
     showRaw("❌ خطأ: " + (e.message || e));
   }
 }
 
-function showRaw(text){
-  document.getElementById('rawText').textContent = text;
-  document.getElementById('rawView').classList.add('open');
-}
+function showRaw(text){ document.getElementById('rawText').textContent = text; document.getElementById('rawView').classList.add('open'); }
 function closeRaw(){ document.getElementById('rawView').classList.remove('open'); }
+function closeSub(id){ document.getElementById(id).classList.remove('open'); }
 
-function openDrawer(){ document.getElementById('overlay').classList.add('open'); document.getElementById('drawer').classList.add('open'); }
-function closeDrawer(){ document.getElementById('overlay').classList.remove('open'); document.getElementById('drawer').classList.remove('open'); }
-
-function openLink(url){ window.open(url, '_blank'); }
-
-// ---------------- topup ----------------
 function openTopup(){
-  closeDrawer();
   document.getElementById('cashNumberText').textContent = CASH_NUMBER;
+  document.getElementById('topupStepA').style.display = 'block';
+  document.getElementById('topupStepB').style.display = 'none';
+  document.getElementById('topupStepC').style.display = 'none';
+  const pg = document.getElementById('pointsGrid');
+  pg.innerHTML = "";
+  POINT_OPTIONS.forEach(p=>{
+    const b = document.createElement('button');
+    b.className = 'points-btn'; b.textContent = p;
+    b.onclick = ()=>{ selectedPoints = p; showStepB(); };
+    pg.appendChild(b);
+  });
   document.getElementById('topupScreen').classList.add('open');
 }
-function closeSub(id){ document.getElementById(id).classList.remove('open'); }
-function updateTopupAmount(){
-  const points = parseInt(document.getElementById('pointsInput').value || "0", 10);
-  document.getElementById('amountField').value = (points * POINT_PRICE).toString();
+function showStepB(){
+  document.getElementById('topupStepA').style.display = 'none';
+  document.getElementById('topupStepB').style.display = 'block';
+  document.getElementById('sumPoints').textContent = selectedPoints;
+  document.getElementById('sumAmount').textContent = selectedPoints * POINT_PRICE;
+}
+function backToStepA(){
+  document.getElementById('topupStepB').style.display = 'none';
+  document.getElementById('topupStepA').style.display = 'block';
+}
+function confirmPointsChoice(){
+  document.getElementById('topupStepB').style.display = 'none';
+  document.getElementById('topupStepC').style.display = 'block';
 }
 function copyCashNumber(){
   try{ navigator.clipboard.writeText(CASH_NUMBER); }catch(e){}
   alert("تم نسخ رقم الكاش");
 }
-function confirmTopup(){
-  const points = parseInt(document.getElementById('pointsInput').value || "0", 10);
+function onScreenshotChosen(ev){
+  const file = ev.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(){
+    screenshotBase64 = reader.result;
+    const box = document.getElementById('fileBox');
+    box.textContent = "✅ تم اختيار الصورة: " + file.name;
+    box.classList.add('has-file');
+  };
+  reader.readAsDataURL(file);
+}
+async function submitTopupRequest(){
   const sender = document.getElementById('senderNumberInput').value;
-  if(points <= 0){ alert("اكتب عدد نقاط صحيح"); return; }
+  if(!screenshotBase64){ alert("ارفع سكرين شوت التحويل الأول"); return; }
   if(sender.length !== 11){ alert("رقم اللي حولت منه لازم 11 رقم"); return; }
-  alert("تم استلام طلبك (سيتم ربط الطلب فعليًا بلوحة تحكم الأدمن في الخطوة الجاية)");
-  closeSub('topupScreen');
+  if(!backendReady()){ alert("السيرفر مش موصول لسه — الطلب هيتفعل بعد ربط الاستضافة"); closeSub('topupScreen'); return; }
+  try{
+    const res = await fetch(BACKEND_URL + "/topup-requests", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ msisdn:userPhone, points:selectedPoints, amount:selectedPoints*POINT_PRICE, sender_number:sender, screenshot_base64:screenshotBase64 })
+    });
+    if(!res.ok){ const e = await res.json(); alert(e.detail || "تعذر إرسال الطلب"); return; }
+    alert("تم إرسال طلبك للإدارة، هيوصلك إشعار لما يتراجع");
+    closeSub('topupScreen');
+    screenshotBase64 = null;
+    document.getElementById('fileBox').textContent = "📎 اضغط هنا وارفع سكرين شوت التحويل";
+    document.getElementById('fileBox').classList.remove('has-file');
+  }catch(e){ alert("تعذر الاتصال بالسيرفر"); }
 }
 
-function openTransactions(){
-  closeDrawer();
-  document.getElementById('transactionsScreen').classList.add('open');
+async function openActivity(){
+  document.getElementById('activityScreen').classList.add('open');
+  const body = document.getElementById('activityBody');
+  body.innerHTML = '<div class="sub-empty">جاري التحميل...</div>';
+  if(!backendReady()){ body.innerHTML = '<div class="sub-empty">السيرفر مش موصول لسه.</div>'; return; }
+  try{
+    const res = await fetch(BACKEND_URL + "/activity/" + userPhone);
+    const rows = await res.json();
+    if(!rows.length){ body.innerHTML = '<div class="sub-empty">مفيش عمليات لسه.</div>'; return; }
+    body.innerHTML = "";
+    rows.forEach(r=>{
+      const el = document.createElement('div');
+      el.className = 'log-item';
+      el.innerHTML = `<div class="msg">${r.message}</div><div class="time">${r.created_at}</div>`;
+      body.appendChild(el);
+    });
+  }catch(e){ body.innerHTML = '<div class="sub-empty">تعذر تحميل السجل.</div>'; }
 }
 
-function openPlaceholder(title){
-  closeDrawer();
-  document.getElementById('placeholderTitle').textContent = title;
-  document.getElementById('placeholderScreen').classList.add('open');
+async function openContact(){
+  document.getElementById('contactScreen').style.display = 'flex';
+  document.getElementById('contactScreen').classList.add('open');
+  await loadChat();
 }
-
-// ---------------- hidden admin entry: tap logo 5x within 2s ----------------
-document.getElementById('logoTap').addEventListener('click', ()=>{
-  logoTapCount++;
-  clearTimeout(logoTapTimer);
-  logoTapTimer = setTimeout(()=>{ logoTapCount = 0; }, 2000);
-  if(logoTapCount >= 5){
-    logoTapCount = 0;
-    document.getElementById('view-home').classList.remove('active');
-    document.getElementById('view-admin-login').classList.add('active');
-  }
-});
-
-function adminLogin(){
-  const u = document.getElementById('admin-user').value;
-  const p = document.getElementById('admin-pass').value;
-  if(u==="admin" && p==="admin123"){
-    document.getElementById('view-admin-login').classList.remove('active');
-    document.getElementById('view-admin-panel').classList.add('active');
-    renderCashList(); renderUsersList();
-  } else {
-    document.getElementById('adminErr').textContent = "بيانات دخول غلط";
-  }
+async function loadChat(){
+  const body = document.getElementById('chatBody');
+  if(!backendReady()){ body.innerHTML = '<div class="sub-empty">السيرفر مش موصول لسه.</div>'; return; }
+  try{
+    const res = await fetch(BACKEND_URL + "/messages/" + userPhone);
+    const rows = await res.json();
+    body.innerHTML = "";
+    rows.forEach(m=>{
+      const b = document.createElement('div');
+      b.className = 'bubble ' + (m.sender === 'user' ? 'user' : 'admin');
+      b.innerHTML = (m.sender === 'user' ? 'أنت: ' : 'الدعم: ') + m.text + `<div class="t">${m.created_at}</div>`;
+      body.appendChild(b);
+    });
+    body.scrollTop = body.scrollHeight;
+  }catch(e){}
 }
-
-function goHome(){
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.getElementById('view-home').classList.add('active');
+async function sendChatMessage(){
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if(!text) return;
+  if(!backendReady()){ alert("السيرفر مش موصول لسه"); return; }
+  try{
+    await fetch(BACKEND_URL + "/messages", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({msisdn:userPhone, sender:'user', text}) });
+    input.value = "";
+    await loadChat();
+  }catch(e){}
 }
-
-function switchAdminTab(tab){
-  document.getElementById('tab-cash').classList.toggle('active', tab==='cash');
-  document.getElementById('tab-users').classList.toggle('active', tab==='users');
-  document.getElementById('admin-cash-tab').style.display = tab==='cash' ? 'block':'none';
-  document.getElementById('admin-users-tab').style.display = tab==='users' ? 'block':'none';
-}
-
-function renderCashList(){
-  const box = document.getElementById('cashList');
-  box.innerHTML = "";
-  cashNumbers.forEach((n,i)=>{
-    const row = document.createElement('div');
-    row.className = 'admin-row';
-    row.innerHTML = `<span>${n}</span><button onclick="removeCash(${i})">حذف</button>`;
-    box.appendChild(row);
-  });
-}
-function addCashNumber(){
-  const v = document.getElementById('newCashNum').value.trim();
-  if(v){ cashNumbers.push(v); document.getElementById('newCashNum').value=""; renderCashList(); }
-}
-function removeCash(i){ cashNumbers.splice(i,1); renderCashList(); }
-
-function renderUsersList(){
-  const box = document.getElementById('usersList');
-  box.innerHTML = "";
-  permittedUsers.forEach((n,i)=>{
-    const row = document.createElement('div');
-    row.className = 'admin-row';
-    row.innerHTML = `<span>${n}</span><button onclick="removeUser(${i})">حذف</button>`;
-    box.appendChild(row);
-  });
-}
-function addPermittedUser(){
-  const v = document.getElementById('newUserNum').value.trim();
-  if(v){ permittedUsers.push(v); document.getElementById('newUserNum').value=""; renderUsersList(); }
-}
-function removeUser(i){ permittedUsers.splice(i,1); renderUsersList(); }
 
 initApp();
 </script>
