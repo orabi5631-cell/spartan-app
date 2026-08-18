@@ -201,3 +201,10 @@ def public_settings():
         "cash_number": get_setting("cash_number"),
         "requests_enabled": get_setting("requests_enabled") == "1",
     }
+
+
+if __name__ == "__main__":
+    import os
+    import uvicorn
+    port = int(os.environ.get("PORT") or os.environ.get("SERVER_PORT") or 8000)
+    uvicorn.run(app, host="0.0.0.0", port=port)
