@@ -1,6 +1,4 @@
 fastapi
 uvicorn
+requests
 pydantic
-python-multipart
-aiofiles
-python-telegram-bot
