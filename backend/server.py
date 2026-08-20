@@ -109,7 +109,11 @@ def add_activity(body: ActivityBody):
 
 @app.get("/activity/{msisdn}")
 def get_activity(msisdn: str):
+    import datetime
+    cutoff = (datetime.datetime.utcnow() - datetime.timedelta(days=7)).isoformat()
     conn = db()
+    conn.execute("DELETE FROM activity_log WHERE msisdn=? AND created_at < ?", (msisdn, cutoff))
+    conn.commit()
     rows = conn.execute(
         "SELECT message, created_at FROM activity_log WHERE msisdn=? ORDER BY created_at DESC", (msisdn,)
     ).fetchall()
