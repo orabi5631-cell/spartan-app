@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SPARTAN</title>
+<title>فكة</title>
 <style>
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent; font-family:'Segoe UI',Tahoma,sans-serif;}
   body{ margin:0; background:#0c0c0c; display:flex; justify-content:center; padding:20px 10px; }
@@ -19,6 +19,17 @@
     display:flex; align-items:center; justify-content:center; padding:14px 16px;
   }
   .brandmark{ color:#E23C3C; font-weight:800; font-size:22px; letter-spacing:.05em; font-family:Georgia,serif; user-select:none;}
+
+  .banner-bar{ display:none; background:#C22626; color:#fff; padding:10px 16px; align-items:center; justify-content:space-between; font-size:13px; }
+  .banner-bar.show{ display:flex; }
+  .banner-bar button{ background:rgba(255,255,255,.2); color:#fff; border:none; border-radius:8px; padding:5px 12px; font-size:11.5px; cursor:pointer; }
+
+  .confirm-overlay{ position:absolute; inset:0; background:rgba(0,0,0,.6); z-index:65; display:none; align-items:center; justify-content:center; padding:20px; }
+  .confirm-overlay.open{ display:flex; }
+  .confirm-box{ background:#171717; border:1px solid #2a2a2a; border-radius:16px; padding:22px; width:100%; }
+  .confirm-box h3{ color:#fff; margin:0 0 14px; font-size:17px; text-align:center; }
+  .confirm-box .row{ display:flex; justify-content:space-between; color:#ccc; font-size:13.5px; padding:6px 0; border-bottom:1px solid #262626; }
+  .confirm-box .row b{ color:#fff; }
 
   .balance-card{ margin:16px; background:#1B1B1B; border-radius:16px; padding:22px 16px; text-align:center; border:1px solid #2a1414;}
   .balance-card .hi{ color:#4CD964; font-size:16px; font-weight:700; margin-bottom:4px; }
@@ -120,7 +131,7 @@
 
   <div class="view active" id="view-firstrun">
     <div class="firstrun">
-      <h2>SPARTAN</h2>
+      <h2>فكة</h2>
       <p>أول مرة تفتح التطبيق ع الجهاز ده — اكتب اسمك ثلاثي عشان نرحب بيك بيه في كل مرة</p>
       <input id="fr-name" placeholder="الاسم ثلاثي" />
       <button onclick="saveNameAndEnter()">دخول</button>
@@ -137,7 +148,11 @@
 
   <div class="view" id="view-home">
     <div class="statusbar"><span>9:41</span><span>VF EG 5G</span></div>
-    <div class="appbar"><div class="brandmark">SPARTAN</div></div>
+    <div class="appbar"><div class="brandmark">فكة</div></div>
+    <div class="banner-bar" id="bannerBar">
+      <span id="bannerText"></span>
+      <button onclick="closeBanner()">إغلاق</button>
+    </div>
     <div class="screen" style="height:auto; min-height:740px; position:relative;">
       <div class="balance-card">
         <div class="hi" id="greetName">مرحباً السيد</div>
@@ -163,12 +178,24 @@
         <div class="counter" id="pinCounter">0/6</div>
         <input class="field-input receiver" id="receiverInput" type="tel" placeholder="رقم المستلم" maxlength="11" oninput="updateCounters()">
         <div class="counter" id="recCounter">0/11</div>
-        <button class="chargebtn" onclick="submitCharge()">شحن</button>
+        <input class="field-input" id="amountInput" type="number" placeholder="المبلغ اللي عايز تشحنه بالجنيه" style="display:none; border-color:#4CD964;">
+        <button class="chargebtn" id="chargeMainBtn" onclick="submitCharge()">شحن</button>
       </div>
       <div style="height:20px;"></div>
 
+      <div class="confirm-overlay" id="confirmOverlay">
+        <div class="confirm-box">
+          <h3 id="confirmTitle">تأكيد الشحن</h3>
+          <div id="confirmDetails"></div>
+          <div class="topup-actions">
+            <button class="btn-confirm" onclick="actuallyCharge()">تأكيد</button>
+            <button class="btn-cancel" onclick="closeConfirm()">إلغاء</button>
+          </div>
+        </div>
+      </div>
+
       <div class="raw-view" id="rawView">
-        <div class="raw-head"><h3>الرد الخام</h3><button onclick="closeRaw()">إغلاق</button></div>
+        <div class="raw-head"><h3>نتيجة العملية</h3><button onclick="closeRaw()">إغلاق</button></div>
         <div class="raw-body"><pre id="rawText"></pre></div>
       </div>
 
@@ -251,6 +278,9 @@ const cards = [
 
 function backendReady(){ return BACKEND_URL.indexOf("PUT_YOUR") !== 0; }
 
+let rechargeMode = false;
+let pendingChargeType = null; // 'card' or 'recharge'
+
 function renderCards(){
   const grid = document.getElementById('cardGrid');
   grid.innerHTML = "";
@@ -258,14 +288,19 @@ function renderCards(){
     const el = document.createElement('div');
     el.className = 'card' + (selectedCard===c.id ? ' selected':'');
     el.innerHTML = `<div class="t">${c.label}</div><div class="d">${c.detail}</div>`;
-    el.onclick = ()=>{ selectedCard = c.id; renderCards(); };
+    el.onclick = ()=>{ selectedCard = c.id; rechargeMode = false; renderCards(); updatePurchaseUI(); };
     grid.appendChild(el);
   });
   const special = document.createElement('div');
-  special.className = 'card special';
-  special.innerHTML = `<div class="t">شحن رصيد</div><div class="d">تحت التطوير</div>`;
-  special.onclick = ()=> alert("الزرار ده تحت التطوير");
+  special.className = 'card special' + (rechargeMode ? ' selected':'');
+  special.innerHTML = `<div class="t">شحن رصيد</div><div class="d">حوّل مبلغ لأي رقم</div>`;
+  special.onclick = ()=>{ rechargeMode = true; selectedCard = null; renderCards(); updatePurchaseUI(); };
   grid.appendChild(special);
+}
+
+function updatePurchaseUI(){
+  document.getElementById('amountInput').style.display = rechargeMode ? 'block' : 'none';
+  document.getElementById('chargeMainBtn').textContent = rechargeMode ? 'شحن الرصيد' : 'شحن';
 }
 
 function togglePin(){
@@ -316,6 +351,7 @@ async function fetchMsisdnThenShowHome(){
   document.getElementById('view-loading').classList.remove('active');
   document.getElementById('view-home').classList.add('active');
   renderCards();
+  updatePurchaseUI();
   fetchBalance();
   checkBanners();
 }
@@ -330,12 +366,20 @@ async function fetchBalance(){
   }catch(e){}
 }
 
+function showBanner(msg){
+  document.getElementById('bannerText').textContent = msg;
+  document.getElementById('bannerBar').classList.add('show');
+}
+function closeBanner(){
+  document.getElementById('bannerBar').classList.remove('show');
+}
+
 async function checkBanners(){
   if(!backendReady()) return;
   try{
     const res = await fetch(BACKEND_URL + "/banners/" + userPhone);
     const banners = await res.json();
-    if(banners.length){ alert("📣 " + banners[0].message); }
+    if(banners.length){ showBanner("📣 " + banners[0].message); }
   }catch(e){}
 }
 
@@ -349,39 +393,110 @@ async function logActivity(message){
   try{ await fetch(BACKEND_URL + "/activity", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({msisdn:userPhone, message}) }); }catch(e){}
 }
 
-async function submitCharge(){
-  if(!selectedCard){ alert("اختار كارت الأول"); return; }
+// ---------------- تفسير الرد الخام لكود واحد مفهوم ----------------
+function interpretResponse(status, rawText, isRecharge){
+  let parsed = null;
+  try{ parsed = JSON.parse(rawText); }catch(e){}
+  if(parsed && parsed.code === "6051") return { success:false, message:"❌ رصيدك الحالي غير كافي للشحن" };
+  if(parsed && parsed.code === "1056") return { success:false, message:"❌ رقم السري غير صحيحة" };
+  if(parsed && parsed.code === "1051") return { success:false, message:"❌ ليس لديك محفظة فودافون كاش" };
+  if(status === 201 && parsed && parsed.state === "Completed"){
+    return { success:true, message: isRecharge ? "✅ تم شحن الرصيد بنجاح" : "✅ تم شحن الكارت بنجاح" };
+  }
+  if(parsed && parsed.reason) return { success:false, message: "❌ " + parsed.reason };
+  return { success:false, message:"❌ لم يتم الشحن، حاول تاني" };
+}
+
+// ---------------- شاشة التأكيد قبل الشحن ----------------
+function submitCharge(){
   const pin = document.getElementById('pinInput').value;
   const rec = document.getElementById('receiverInput').value;
   if(pin.length!==6){ alert("الرقم السري لازم 6 أرقام"); return; }
   if(rec.length!==11){ alert("رقم المستلم لازم 11 رقم"); return; }
+
+  if(rechargeMode){
+    const amount = document.getElementById('amountInput').value;
+    if(!amount || Number(amount) <= 0){ alert("اكتب مبلغ صحيح"); return; }
+    pendingChargeType = 'recharge';
+    document.getElementById('confirmTitle').textContent = "تأكيد شحن الرصيد";
+    document.getElementById('confirmDetails').innerHTML =
+      `<div class="row"><span>المبلغ</span><b>${amount} جنيه</b></div>
+       <div class="row"><span>رقم المستلم</span><b>${rec}</b></div>`;
+  } else {
+    if(!selectedCard){ alert("اختار كارت الأول"); return; }
+    if(backendReady() && starsBalance < 1){ alert("رصيدك من النقاط خلص — اطلب رصيد الأول"); openTopup(); return; }
+    const c = cards.find(x=>x.id===selectedCard) || {};
+    pendingChargeType = 'card';
+    document.getElementById('confirmTitle').textContent = "تأكيد شحن الكارت";
+    document.getElementById('confirmDetails').innerHTML =
+      `<div class="row"><span>الكارت</span><b>${c.label}</b></div>
+       <div class="row"><span>التفاصيل</span><b>${c.detail}</b></div>
+       <div class="row"><span>رقم المستلم</span><b>${rec}</b></div>`;
+  }
+  document.getElementById('confirmOverlay').classList.add('open');
+}
+function closeConfirm(){
+  document.getElementById('confirmOverlay').classList.remove('open');
+}
+
+async function actuallyCharge(){
+  closeConfirm();
+  const pin = document.getElementById('pinInput').value;
+  const rec = document.getElementById('receiverInput').value;
+
   if(!window.Capacitor || !window.Capacitor.Plugins || !window.Capacitor.Plugins.VodafonePurchase){
-    alert("بلوجن الشراء مش متسجل"); return;
+    alert("حصل خطأ في التطبيق"); return;
   }
 
-  if(backendReady()){
-    try{
-      const dres = await fetch(BACKEND_URL + "/deduct-point/" + userPhone, { method:"POST" });
-      if(dres.status === 402){ alert("رصيدك من النقاط خلص — اطلب رصيد الأول"); openTopup(); return; }
-      const ddata = await dres.json();
-      starsBalance = ddata.stars;
-      document.getElementById('starsBalance').textContent = starsBalance;
-    }catch(e){ alert("تعذر التحقق من رصيد النقاط"); return; }
-  }
-
-  const cardLabel = (cards.find(c=>c.id===selectedCard)||{}).label || selectedCard;
-  showRaw("🔄 جاري تنفيذ الطلب...\n");
+  showResultLoading();
   try{
-    const result = await window.Capacitor.Plugins.VodafonePurchase.purchase({ productId: selectedCard, receiver: rec, pin: pin });
-    showRaw(result.raw || "لا يوجد رد");
-    logActivity(`تم شحن كارت ${cardLabel} لرقم ${rec}`);
+    let result, interp;
+    if(pendingChargeType === 'recharge'){
+      const amount = document.getElementById('amountInput').value;
+      result = await window.Capacitor.Plugins.VodafonePurchase.rechargeBalance({ receiver: rec, pin: pin, amount: amount });
+      interp = interpretResponse(result.status, extractRawJson(result.raw), true);
+      if(interp.success) logActivity(`تم شحن رصيد ${amount} جنيه لرقم ${rec}`);
+    } else {
+      const cardLabel = (cards.find(c=>c.id===selectedCard)||{}).label || selectedCard;
+      result = await window.Capacitor.Plugins.VodafonePurchase.purchase({ productId: selectedCard, receiver: rec, pin: pin });
+      interp = interpretResponse(result.status, extractRawJson(result.raw), false);
+      if(interp.success) logActivity(`تم شحن كارت ${cardLabel} لرقم ${rec}`);
+    }
+
+    showResult(interp.success, interp.message);
+
+    // النقط بتتخصم بس لو الشحن نجح فعليًا، وبس للكروت (مش لشحن الرصيد)
+    if(interp.success && pendingChargeType === 'card' && backendReady()){
+      try{
+        const dres = await fetch(BACKEND_URL + "/deduct-point/" + userPhone, { method:"POST" });
+        if(dres.ok){
+          const ddata = await dres.json();
+          starsBalance = ddata.stars;
+          document.getElementById('starsBalance').textContent = starsBalance;
+        }
+      }catch(e){}
+    }
   }catch(e){
-    showRaw("❌ خطأ: " + (e.message || e));
+    showResult(false, "❌ لم يتم الشحن، حاول تاني");
   }
 }
 
-function showRaw(text){ document.getElementById('rawText').textContent = text; document.getElementById('rawView').classList.add('open'); }
-function closeRaw(){ document.getElementById('rawView').classList.remove('open'); }
+function showResultLoading(){
+  document.getElementById('rawText').textContent = "🔄 جاري تنفيذ الطلب...";
+  document.getElementById('rawView').classList.add('open');
+}
+function showResult(success, message){
+  document.getElementById('rawText').textContent = message;
+  document.getElementById('rawText').style.color = success ? "#4CD964" : "#E23C3C";
+}
+
+function extractRawJson(fullLog){
+  // بياخد آخر جزء JSON من نص اللوج (بعد "📦 الرد:")
+  const idx = fullLog.indexOf("📦 الرد:");
+  return idx >= 0 ? fullLog.substring(idx + 7).trim() : fullLog;
+}
+
+function closeRaw(){ document.getElementById('rawView').classList.remove('open'); document.getElementById('rawText').style.color = "#8FE38F"; }
 function closeSub(id){ document.getElementById(id).classList.remove('open'); }
 
 function openTopup(){
