@@ -13,7 +13,6 @@
   .view{ display:none; }
   .view.active{ display:block; }
 
-  .statusbar{ display:flex; justify-content:space-between; padding:10px 20px 2px; color:#fff; font-size:11px; direction:ltr;}
   .appbar{
     background:#000; border-bottom:2px solid #C22626;
     display:flex; align-items:center; justify-content:center; padding:14px 16px;
@@ -31,15 +30,16 @@
   .confirm-box .row{ display:flex; justify-content:space-between; color:#ccc; font-size:13.5px; padding:6px 0; border-bottom:1px solid #262626; }
   .confirm-box .row b{ color:#fff; }
 
-  .balance-card{ margin:16px; background:#1B1B1B; border-radius:16px; padding:22px 16px; text-align:center; border:1px solid #2a1414;}
-  .balance-card .hi{ color:#4CD964; font-size:16px; font-weight:700; margin-bottom:4px; }
-  .balance-card .phone{ color:#B9B9B9; font-size:14px; margin-bottom:10px; }
-  .balance-card .num{ color:#E23C3C; font-size:34px; font-weight:800; }
-  .balance-card .lbl{ color:#9a9a9a; font-size:12.5px; margin:4px 0 14px; }
-  .quickrow{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+  .balance-card{ margin:14px 16px; background:#1B1B1B; border-radius:12px; padding:12px 14px; border:1px solid #2a1414;}
+  .balance-card .line1{ color:#4CD964; font-size:13px; font-weight:700; }
+  .balance-card .line1 span:last-child{ color:#B9B9B9; font-weight:600; direction:ltr; display:inline-block; }
+  .balance-card .line2{ color:#9a9a9a; font-size:11.5px; margin:2px 0 10px; }
+  .balance-card .line2 b{ color:#E23C3C; }
+  .quickrow{ display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; }
+  .quickrow::-webkit-scrollbar{ display:none; }
   .quickrow button{
-    background:#C22626; color:#fff; border:none; border-radius:10px; padding:10px 12px;
-    font-size:12px; font-weight:700; cursor:pointer; flex:1 1 40%;
+    background:#C22626; color:#fff; border:none; border-radius:8px; padding:8px 12px;
+    font-size:11px; font-weight:700; cursor:pointer; white-space:nowrap; flex:0 0 auto;
   }
 
   .section-title{ text-align:center; color:#fff; font-size:19px; font-weight:800; margin:22px 0 14px; }
@@ -50,7 +50,8 @@
     text-align:center; cursor:pointer; min-height:78px; display:flex; flex-direction:column; justify-content:center;
   }
   .card.selected{ border-color:#E23C3C; background:#2A1414; }
-  .card.special{ border-color:#C22626; background:#1a0e0e; }
+  .card.special{ border-color:#3B7DD8; background:#0e1a2a; }
+  .card.special.selected{ border-color:#3B7DD8; background:#122540; }
   .card .t{ color:#fff; font-weight:800; font-size:14px; }
   .card .d{ color:#9a9a9a; font-size:10px; margin-top:4px; line-height:1.3; }
 
@@ -79,7 +80,7 @@
   .subscreen{ position:absolute; inset:0; background:#101010; z-index:55; display:none; flex-direction:column; }
   .subscreen.open{ display:flex; }
   .sub-head{ display:flex; align-items:center; gap:10px; padding:16px; border-bottom:1px solid #232323; background:#000; }
-  .sub-head button{ background:none; border:none; color:#eee; font-size:20px; cursor:pointer; }
+  .sub-head button{ background:#2A2A2A; color:#eee; border:none; border-radius:8px; padding:6px 14px; font-size:12.5px; cursor:pointer; }
   .sub-head h3{ color:#fff; font-size:16px; margin:0; }
   .sub-body{ flex:1; overflow-y:auto; padding:20px; }
   .sub-empty{ color:#777; text-align:center; margin-top:60px; font-size:13.5px; line-height:1.8; }
@@ -129,16 +130,7 @@
 <body>
 <div class="phone">
 
-  <div class="view active" id="view-firstrun">
-    <div class="firstrun">
-      <h2>فكة</h2>
-      <p>أول مرة تفتح التطبيق ع الجهاز ده — اكتب اسمك ثلاثي عشان نرحب بيك بيه في كل مرة</p>
-      <input id="fr-name" placeholder="الاسم ثلاثي" />
-      <button onclick="saveNameAndEnter()">دخول</button>
-    </div>
-  </div>
-
-  <div class="view" id="view-loading">
+  <div class="view active" id="view-loading">
     <div class="loading">
       <div class="dot"></div>
       <h3>جاري الاتصال وجلب البيانات...</h3>
@@ -147,7 +139,6 @@
   </div>
 
   <div class="view" id="view-home">
-    <div class="statusbar"><span>9:41</span><span>VF EG 5G</span></div>
     <div class="appbar"><div class="brandmark">فكة</div></div>
     <div class="banner-bar" id="bannerBar">
       <span id="bannerText"></span>
@@ -155,10 +146,8 @@
     </div>
     <div class="screen" style="height:auto; min-height:740px; position:relative;">
       <div class="balance-card">
-        <div class="hi" id="greetName">مرحباً السيد</div>
-        <div class="phone" id="userPhone">جاري الجلب...</div>
-        <div class="num" id="starsBalance">0</div>
-        <div class="lbl">نقاطك</div>
+        <div class="line1"><span id="greetName">مرحباً</span> <span id="userPhone">جاري الجلب...</span></div>
+        <div class="line2">النقاط المتبقية: <b id="starsBalance">0</b></div>
         <div class="quickrow">
           <button onclick="openActivity()">سجل العمليات</button>
           <button onclick="openTopup()">طلب رصيد</button>
@@ -200,7 +189,7 @@
       </div>
 
       <div class="subscreen" id="topupScreen">
-        <div class="sub-head"><button onclick="closeSub('topupScreen')">›</button><h3>طلب رصيد</h3></div>
+        <div class="sub-head"><button onclick="closeSub('topupScreen')">إغلاق</button><h3>طلب رصيد</h3></div>
         <div class="sub-body">
           <div id="topupStepA">
             <p style="color:#999;font-size:13px;">اختار عدد النقاط اللي عايز تشحنها</p>
@@ -233,14 +222,14 @@
       </div>
 
       <div class="subscreen" id="activityScreen">
-        <div class="sub-head"><button onclick="closeSub('activityScreen')">›</button><h3>سجل العمليات</h3></div>
+        <div class="sub-head"><button onclick="closeSub('activityScreen')">إغلاق</button><h3>سجل العمليات</h3></div>
         <div class="sub-body" id="activityBody">
           <div class="sub-empty">جاري التحميل...</div>
         </div>
       </div>
 
       <div class="subscreen" id="contactScreen" style="display:none;">
-        <div class="sub-head"><button onclick="closeSub('contactScreen')">›</button><h3>تواصل معنا</h3></div>
+        <div class="sub-head"><button onclick="closeSub('contactScreen')">إغلاق</button><h3>تواصل معنا</h3></div>
         <div class="chat-body" id="chatBody"></div>
         <div class="chat-input-row">
           <input id="chatInput" placeholder="اكتب رسالتك...">
@@ -308,32 +297,8 @@ function togglePin(){
   el.type = el.type === 'password' ? 'text' : 'password';
 }
 
-async function initApp(){
-  try{
-    const prefs = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences;
-    if(prefs){
-      const res = await prefs.get({ key: 'spartan_user_name' });
-      if(res && res.value){ userName = res.value; enterLoadingThenHome(); return; }
-    }
-  }catch(e){}
-}
-
-async function saveNameAndEnter(){
-  const v = document.getElementById('fr-name').value.trim();
-  if(v.split(/\s+/).filter(Boolean).length < 3){ alert("من فضلك اكتب الاسم ثلاثي"); return; }
-  userName = v.split(/\s+/)[0];
-  try{
-    const prefs = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences;
-    if(prefs) await prefs.set({ key: 'spartan_user_name', value: userName });
-  }catch(e){}
-  document.getElementById('view-firstrun').classList.remove('active');
-  enterLoadingThenHome();
-}
-
-function enterLoadingThenHome(){
-  document.getElementById('view-firstrun').classList.remove('active');
+function initApp(){
   document.getElementById('view-loading').classList.add('active');
-  document.getElementById('greetName').textContent = "مرحباً السيد " + userName;
   fetchMsisdnThenShowHome();
 }
 
@@ -343,10 +308,12 @@ async function fetchMsisdnThenShowHome(){
     if(!plugin) throw new Error("بلوجن الاتصال مش متسجل");
     const res = await plugin.login();
     userPhone = res.msisdn || "غير معروف";
+    userName = res.firstName || "";
   }catch(e){
     userPhone = "تعذر الجلب";
   }
 
+  document.getElementById('greetName').textContent = userName ? ("مرحباً " + userName) : "مرحباً";
   document.getElementById('userPhone').textContent = userPhone;
   document.getElementById('view-loading').classList.remove('active');
   document.getElementById('view-home').classList.add('active');
