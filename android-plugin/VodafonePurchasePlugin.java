@@ -49,7 +49,7 @@ public class VodafonePurchasePlugin extends Plugin {
         return sb.toString();
     }
 
-    // ---------------- login() : يجيب رقم المرسل بس (بيتنادى لما التطبيق يفتح) ----------------
+    // ---------------- login() : يجيب رقم المرسل + اسم أول (لو موجود جوه التوكن) ----------------
     @PluginMethod
     public void login(final PluginCall call) {
         new Thread(new Runnable() {
@@ -59,12 +59,36 @@ public class VodafonePurchasePlugin extends Plugin {
                     String[] seamless = getSeamlessAndMsisdn();
                     JSObject result = new JSObject();
                     result.put("msisdn", seamless[1]);
+                    result.put("firstName", decodeFirstNameFromJwt(seamless[0]));
                     call.resolve(result);
                 } catch (Exception e) {
                     call.reject(e.getMessage() != null ? e.getMessage() : "Unknown error");
                 }
             }
         }).start();
+    }
+
+    // بيحاول يفك تشفير جزء البيانات (payload) بتاع الـ seamlessToken لو هو JWT، ويدور على اسم جواه
+    private String decodeFirstNameFromJwt(String token) {
+        try {
+            String[] parts = token.split("\\.");
+            if (parts.length < 2) return null;
+            String payloadB64 = parts[1];
+            byte[] decoded = android.util.Base64.decode(payloadB64, android.util.Base64.URL_SAFE | android.util.Base64.NO_WRAP | android.util.Base64.NO_PADDING);
+            JSONObject claims = new JSONObject(new String(decoded, "UTF-8"));
+            String[] possibleKeys = {"given_name", "first_name", "firstName", "name", "full_name", "fullName", "displayName", "subscriberName", "customerName"};
+            for (String key : possibleKeys) {
+                if (claims.has(key)) {
+                    String value = claims.optString(key, "").trim();
+                    if (!value.isEmpty()) {
+                        return value.split("\\s+")[0];
+                    }
+                }
+            }
+        } catch (Exception ignore) {
+            // مش JWT أو مفيهوش اسم — هيتم التعامل معاها من جانب التطبيق
+        }
+        return null;
     }
 
     // ---------------- purchase() : نفس السكريبت بالظبط + رد خام كامل ----------------
@@ -115,6 +139,53 @@ public class VodafonePurchasePlugin extends Plugin {
                     } else {
                         log.append("❌ فشل الاتصال\n");
                     }
+
+                    JSObject result = new JSObject();
+                    result.put("status", status);
+                    result.put("msisdn", msisdn);
+                    result.put("raw", log.toString());
+                    call.resolve(result);
+                } catch (Exception e) {
+                    log.append("\n❌ خطأ: ").append(e.getMessage() != null ? e.getMessage() : "غير معروف").append("\n");
+                    JSObject result = new JSObject();
+                    result.put("status", 0);
+                    result.put("raw", log.toString());
+                    call.resolve(result);
+                }
+            }
+        }).start();
+    }
+
+    // ---------------- rechargeBalance() : شحن رصيد عادي (PaymentRecharge) ----------------
+    @PluginMethod
+    public void rechargeBalance(final PluginCall call) {
+        final String receiver = call.getString("receiver");
+        final String pin = call.getString("pin");
+        final String amount = call.getString("amount");
+        if (receiver == null) { call.reject("receiver missing"); return; }
+        if (pin == null) { call.reject("pin missing"); return; }
+        if (amount == null) { call.reject("amount missing"); return; }
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                StringBuilder log = new StringBuilder();
+                try {
+                    log.append("🔄 جاري تسجيل الدخول...\n");
+                    String[] seamless = getSeamlessAndMsisdn();
+                    String seamlessToken = seamless[0];
+                    String msisdn = seamless[1];
+                    log.append("✅ الرقم المرسل  ").append(msisdn).append("\n");
+
+                    String accessToken = getAccessToken(seamlessToken);
+                    log.append("✅ تم الحصول على التوكن\n");
+
+                    log.append("🔄 جاري تنفيذ عملية الشحن...\n");
+                    Object[] order = placeRechargeOrder(receiver, pin, amount, msisdn, accessToken);
+                    int status = (Integer) order[0];
+                    String rawText = (String) order[1];
+
+                    log.append("\n📦 الرد:\n").append(rawText).append("\n");
 
                     JSObject result = new JSObject();
                     result.put("status", status);
@@ -220,4 +291,48 @@ public class VodafonePurchasePlugin extends Plugin {
         String text = readStream(stream, isGzip(conn));
         return new Object[]{ status, text };
     }
-                                }
+
+    private Object[] placeRechargeOrder(String receiver, String pin, String amount, String msisdnSender, String accessToken) throws Exception {
+        URL url = new URL("https://mobile.vodafone.com.eg/services/dxl/orderor/productOrder");
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("POST");
+        conn.setDoOutput(true);
+        for (Map.Entry<String, String> e : commonHeaders().entrySet()) conn.setRequestProperty(e.getKey(), e.getValue());
+        conn.setRequestProperty("Accept", "application/json");
+        conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+        conn.setRequestProperty("api-version", "v2");
+        conn.setRequestProperty("msisdn", msisdnSender);
+        conn.setRequestProperty("X-Request-ID", java.util.UUID.randomUUID().toString());
+        conn.setRequestProperty("Authorization", "Bearer " + accessToken);
+
+        JSONObject paymentChar1 = new JSONObject().put("name", "authorizationCode").put("value", pin);
+        JSONObject paymentChar2 = new JSONObject().put("name", "digitalTransactionId").put("value", java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 13));
+        JSONObject payment = new JSONObject()
+                .put("characteristics", new JSONArray().put(paymentChar1).put(paymentChar2))
+                .put("@type", "digitalWallet");
+
+        JSONObject itemChar1 = new JSONObject().put("name", "MSISDN").put("@type", "receiver").put("value", receiver);
+        JSONObject itemChar2 = new JSONObject().put("name", "MSISDN").put("@type", "sender").put("value", msisdnSender);
+        JSONObject taxIncluded = new JSONObject().put("unit", "EGP").put("value", Double.parseDouble(amount));
+        JSONObject price = new JSONObject().put("taxIncludedAmount", taxIncluded);
+        JSONObject itemTotalPrice = new JSONObject().put("price", price);
+        JSONObject productOrderItem = new JSONObject()
+                .put("characteristics", new JSONArray().put(itemChar1).put(itemChar2))
+                .put("itemTotalPrice", new JSONArray().put(itemTotalPrice));
+
+        JSONObject payload = new JSONObject()
+                .put("payment", new JSONArray().put(payment))
+                .put("productOrderItem", new JSONArray().put(productOrderItem))
+                .put("@type", "paymentRecharge");
+
+        OutputStream os = conn.getOutputStream();
+        os.write(payload.toString().getBytes("UTF-8"));
+        os.flush();
+        os.close();
+
+        int status = conn.getResponseCode();
+        InputStream stream = (status >= 200 && status < 300) ? conn.getInputStream() : conn.getErrorStream();
+        String text = readStream(stream, isGzip(conn));
+        return new Object[]{ status, text };
+    }
+}
