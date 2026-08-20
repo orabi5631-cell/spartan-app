@@ -81,7 +81,7 @@ def main_menu_markup():
 
 
 def send_main_menu(chat_id):
-    tg_send_message(chat_id, "لوحة تحكم SPARTAN — اختار من تحت:", main_menu_markup())
+    tg_send_message(chat_id, "لوحة تحكم فكة — اختار من تحت:", main_menu_markup())
 
 
 def notify_admin_new_topup(req_id, msisdn, points, amount, sender_number, screenshot_b64):
