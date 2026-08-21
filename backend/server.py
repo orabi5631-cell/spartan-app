@@ -177,6 +177,14 @@ def get_banners(msisdn: str):
 def send_message(body: MessageBody):
     ensure_user(body.msisdn)
     conn = db()
+    if body.sender == "user":
+        import datetime
+        row = conn.execute("SELECT chat_banned_until FROM users WHERE msisdn=?", (body.msisdn,)).fetchone()
+        if row and row["chat_banned_until"]:
+            until = row["chat_banned_until"]
+            if until > now():
+                conn.close()
+                raise HTTPException(403, f"محظور من التواصل مع الدعم لحد {until[:16].replace('T',' ')}")
     conn.execute(
         "INSERT INTO messages (msisdn, sender, text, created_at) VALUES (?, ?, ?, ?)",
         (body.msisdn, body.sender, body.text, now()),
