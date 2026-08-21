@@ -366,7 +366,7 @@ function interpretResponse(status, rawText, isRecharge){
   if(parsed && parsed.code === "6051") return { success:false, message:"❌ رصيدك الحالي غير كافي للشحن" };
   if(parsed && parsed.code === "1056") return { success:false, message:"❌ رقم السري غير صحيحة" };
   if(parsed && parsed.code === "1051") return { success:false, message:"❌ ليس لديك محفظة فودافون كاش" };
-  if(status === 201 && parsed && parsed.state === "Completed"){
+  if(Number(status) === 201 && parsed && parsed.state === "Completed"){
     return { success:true, message: isRecharge ? "✅ تم شحن الرصيد بنجاح" : "✅ تم شحن الكارت بنجاح" };
   }
   if(parsed && parsed.reason) return { success:false, message: "❌ " + parsed.reason };
@@ -457,9 +457,9 @@ function showResult(success, message){
 }
 
 function extractRawJson(fullLog){
-  // بياخد آخر جزء JSON من نص اللوج (بعد "📦 الرد:")
-  const idx = fullLog.indexOf("📦 الرد:");
-  return idx >= 0 ? fullLog.substring(idx + 7).trim() : fullLog;
+  // بياخد الجزء اللي بيبدأ بأول قوس { لحد آخر النص (بدل ما نعتمد على طول نص فيه إيموجي، ده كان سبب الخطأ)
+  const idx = fullLog.indexOf("{");
+  return idx >= 0 ? fullLog.substring(idx).trim() : fullLog;
 }
 
 function closeRaw(){ document.getElementById('rawView').classList.remove('open'); document.getElementById('rawText').style.color = "#8FE38F"; }
