@@ -33,7 +33,7 @@ def init_db():
     c.execute("""CREATE TABLE IF NOT EXISTS users (
         msisdn TEXT PRIMARY KEY, name TEXT, stars INTEGER DEFAULT 0,
         device_id TEXT, banned INTEGER DEFAULT 0, consecutive_rejections INTEGER DEFAULT 0,
-        created_at TEXT)""")
+        chat_banned_until TEXT, created_at TEXT)""")
     c.execute("""CREATE TABLE IF NOT EXISTS activity_log (
         id INTEGER PRIMARY KEY AUTOINCREMENT, msisdn TEXT, message TEXT, created_at TEXT)""")
     c.execute("""CREATE TABLE IF NOT EXISTS topup_requests (
@@ -48,6 +48,12 @@ def init_db():
     defaults = {"point_price": "2", "cash_number": "01556058014", "requests_enabled": "1"}
     for k, v in defaults.items():
         c.execute("INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)", (k, v))
+
+    # ترقية آمنة لقاعدة بيانات موجودة بالفعل على الاستضافة (من غير ما نمسحها)
+    try:
+        c.execute("ALTER TABLE users ADD COLUMN chat_banned_until TEXT")
+    except sqlite3.OperationalError:
+        pass
 
     conn.commit()
     conn.close()
@@ -139,3 +145,41 @@ def reject_topup(req_id):
     conn.close()
     log_activity(reqrow["msisdn"], "تم رفض طلب شحن النقاط")
     return reqrow
+
+
+def set_chat_ban(msisdn, minutes):
+    ensure_user(msisdn)
+    conn = db()
+    if minutes <= 0:
+        conn.execute("UPDATE users SET chat_banned_until=NULL WHERE msisdn=?", (msisdn,))
+    else:
+        until = (datetime.datetime.utcnow() + datetime.timedelta(minutes=minutes)).isoformat()
+        conn.execute("UPDATE users SET chat_banned_until=? WHERE msisdn=?", (until, msisdn))
+    conn.commit()
+    conn.close()
+
+
+def full_stats():
+    conn = db()
+    users_count = conn.execute("SELECT COUNT(*) c FROM users").fetchone()["c"]
+    total_stars = conn.execute("SELECT COALESCE(SUM(stars),0) s FROM users").fetchone()["s"]
+    pending_topups = conn.execute("SELECT COUNT(*) c FROM topup_requests WHERE status='pending'").fetchone()["c"]
+    approved_topups = conn.execute("SELECT COUNT(*) c FROM topup_requests WHERE status='approved'").fetchone()["c"]
+    rejected_topups = conn.execute("SELECT COUNT(*) c FROM topup_requests WHERE status='rejected'").fetchone()["c"]
+    successful_charges = conn.execute("SELECT COUNT(*) c FROM activity_log WHERE message LIKE 'تم شحن كارت%'").fetchone()["c"]
+    successful_recharges = conn.execute("SELECT COUNT(*) c FROM activity_log WHERE message LIKE 'تم شحن رصيد%'").fetchone()["c"]
+    banned_users = conn.execute("SELECT COUNT(*) c FROM users WHERE banned=1").fetchone()["c"]
+    chat_banned = conn.execute("SELECT COUNT(*) c FROM users WHERE chat_banned_until IS NOT NULL AND chat_banned_until > ?", (now(),)).fetchone()["c"]
+    total_messages = conn.execute("SELECT COUNT(*) c FROM messages").fetchone()["c"]
+    today = datetime.datetime.utcnow().strftime("%Y-%m-%d")
+    month = datetime.datetime.utcnow().strftime("%Y-%m")
+    charges_today = conn.execute("SELECT COUNT(*) c FROM activity_log WHERE message LIKE 'تم شحن%' AND created_at LIKE ?", (today + "%",)).fetchone()["c"]
+    charges_month = conn.execute("SELECT COUNT(*) c FROM activity_log WHERE message LIKE 'تم شحن%' AND created_at LIKE ?", (month + "%",)).fetchone()["c"]
+    conn.close()
+    return {
+        "users_count": users_count, "total_stars": total_stars,
+        "pending_topups": pending_topups, "approved_topups": approved_topups, "rejected_topups": rejected_topups,
+        "successful_charges": successful_charges, "successful_recharges": successful_recharges,
+        "banned_users": banned_users, "chat_banned": chat_banned, "total_messages": total_messages,
+        "charges_today": charges_today, "charges_month": charges_month,
+    }
