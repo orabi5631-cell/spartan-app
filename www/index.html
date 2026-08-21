@@ -30,15 +30,15 @@
   .confirm-box .row{ display:flex; justify-content:space-between; color:#ccc; font-size:13.5px; padding:6px 0; border-bottom:1px solid #262626; }
   .confirm-box .row b{ color:#fff; }
 
-  .balance-card{ margin:14px 16px; background:#1B1B1B; border-radius:12px; padding:12px 14px; border:1px solid #2a1414;}
-  .balance-card .line1{ color:#4CD964; font-size:13px; font-weight:700; }
-  .balance-card .line1 span:last-child{ color:#B9B9B9; font-weight:600; direction:ltr; display:inline-block; }
-  .balance-card .line2{ color:#9a9a9a; font-size:11.5px; margin:2px 0 10px; }
-  .balance-card .line2 b{ color:#E23C3C; }
+  .balance-card{ margin:14px 16px; background:#151923; border-radius:22px; padding:20px 16px 16px; text-align:center; border:1px solid #282d38;}
+  .balance-card .line1{ color:#58bd66; font-size:15px; font-weight:700; }
+  .balance-card .line1 span:last-child{ display:block; color:#B9B9B9; font-size:12px; font-weight:600; direction:ltr; margin-top:4px; }
+  .balance-card .line2{ color:#c5c6cc; font-size:11px; margin:2px 0 12px; }
+  .balance-card .line2 b{ display:block; color:#ff3e3e; font-size:32px; line-height:1; font-weight:800; margin-bottom:4px; }
   .quickrow{ display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; }
   .quickrow::-webkit-scrollbar{ display:none; }
   .quickrow button{
-    background:#C22626; color:#fff; border:none; border-radius:8px; padding:8px 12px;
+    background:#383c48; color:#fff; border:none; border-radius:10px; padding:9px 12px;
     font-size:11px; font-weight:700; cursor:pointer; white-space:nowrap; flex:0 0 auto;
   }
 
@@ -50,8 +50,6 @@
     text-align:center; cursor:pointer; min-height:78px; display:flex; flex-direction:column; justify-content:center;
   }
   .card.selected{ border-color:#E23C3C; background:#2A1414; }
-  .card.special{ border-color:#3B7DD8; background:#0e1a2a; }
-  .card.special.selected{ border-color:#3B7DD8; background:#122540; }
   .card .t{ color:#fff; font-weight:800; font-size:14px; }
   .card .d{ color:#9a9a9a; font-size:10px; margin-top:4px; line-height:1.3; }
 
@@ -146,8 +144,8 @@
     </div>
     <div class="screen" style="height:auto; min-height:740px; position:relative;">
       <div class="balance-card">
-        <div class="line1"><span id="greetName">مرحباً</span> <span id="userPhone">جاري الجلب...</span></div>
-        <div class="line2">النقاط المتبقية: <b id="starsBalance">0</b></div>
+        <div class="line1"><span id="greetName">مرحباً</span><span id="userPhone">جاري الجلب...</span></div>
+        <div class="line2"><b id="starsBalance">0</b>نقاطك</div>
         <div class="quickrow">
           <button onclick="openActivity()">سجل العمليات</button>
           <button onclick="openTopup()">طلب رصيد</button>
@@ -228,7 +226,7 @@
         </div>
       </div>
 
-      <div class="subscreen" id="contactScreen" style="display:none;">
+      <div class="subscreen" id="contactScreen">
         <div class="sub-head"><button onclick="closeSub('contactScreen')">إغلاق</button><h3>تواصل معنا</h3></div>
         <div class="chat-body" id="chatBody"></div>
         <div class="chat-input-row">
@@ -273,6 +271,12 @@ let pendingChargeType = null; // 'card' or 'recharge'
 function renderCards(){
   const grid = document.getElementById('cardGrid');
   grid.innerHTML = "";
+  const special = document.createElement('div');
+  special.className = 'card' + (rechargeMode ? ' selected':'');
+  special.innerHTML = `<div class="t">شحن رصيد</div><div class="d">حوّل مبلغ لأي رقم</div>`;
+  special.onclick = ()=>{ rechargeMode = true; selectedCard = null; renderCards(); updatePurchaseUI(); };
+  grid.appendChild(special);
+
   cards.forEach(c=>{
     const el = document.createElement('div');
     el.className = 'card' + (selectedCard===c.id ? ' selected':'');
@@ -280,11 +284,6 @@ function renderCards(){
     el.onclick = ()=>{ selectedCard = c.id; rechargeMode = false; renderCards(); updatePurchaseUI(); };
     grid.appendChild(el);
   });
-  const special = document.createElement('div');
-  special.className = 'card special' + (rechargeMode ? ' selected':'');
-  special.innerHTML = `<div class="t">شحن رصيد</div><div class="d">حوّل مبلغ لأي رقم</div>`;
-  special.onclick = ()=>{ rechargeMode = true; selectedCard = null; renderCards(); updatePurchaseUI(); };
-  grid.appendChild(special);
 }
 
 function updatePurchaseUI(){
@@ -464,7 +463,7 @@ function extractRawJson(fullLog){
 }
 
 function closeRaw(){ document.getElementById('rawView').classList.remove('open'); document.getElementById('rawText').style.color = "#8FE38F"; }
-function closeSub(id){ document.getElementById(id).classList.remove('open'); }
+function closeSub(id){ const el = document.getElementById(id); el.classList.remove('open'); el.style.display = ''; }
 
 function openTopup(){
   document.getElementById('cashNumberText').textContent = CASH_NUMBER;
@@ -550,7 +549,6 @@ async function openActivity(){
 }
 
 async function openContact(){
-  document.getElementById('contactScreen').style.display = 'flex';
   document.getElementById('contactScreen').classList.add('open');
   await loadChat();
 }
@@ -576,7 +574,8 @@ async function sendChatMessage(){
   if(!text) return;
   if(!backendReady()){ alert("السيرفر مش موصول لسه"); return; }
   try{
-    await fetch(BACKEND_URL + "/messages", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({msisdn:userPhone, sender:'user', text}) });
+    const res = await fetch(BACKEND_URL + "/messages", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({msisdn:userPhone, sender:'user', text}) });
+    if(!res.ok){ const e = await res.json().catch(()=>({})); alert(e.detail || "تعذر إرسال الرسالة"); return; }
     input.value = "";
     await loadChat();
   }catch(e){}
