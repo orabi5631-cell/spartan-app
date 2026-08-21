@@ -19,6 +19,7 @@ import json
 
 from dbhelpers import (
     db, adjust_stars, approve_topup, reject_topup, get_setting, set_setting,
+    set_chat_ban, full_stats,
 )
 
 BOT_TOKEN = "8976525117:AAG9Y3QOQ_Expk5OXKJA5kp8KwWdqlwn0Ws"
@@ -72,7 +73,8 @@ def main_menu_markup():
             [{"text": "➕ إضافة نقط", "callback_data": "menu_add_stars"},
              {"text": "➖ خصم نقط", "callback_data": "menu_remove_stars"}],
             [{"text": "📩 طلبات الشحن المعلّقة", "callback_data": "menu_pending_topups"}],
-            [{"text": "💬 الرسائل", "callback_data": "menu_messages"}],
+            [{"text": "💬 الرسائل", "callback_data": "menu_messages"},
+             {"text": "🚫 حظر من الدعم", "callback_data": "menu_chat_ban"}],
             [{"text": "📣 إرسال إشعار", "callback_data": "menu_send_banner"}],
             [{"text": "⚙️ الإعدادات", "callback_data": "menu_settings"}],
             [{"text": "📊 الإحصائيات", "callback_data": "menu_stats"}],
@@ -148,6 +150,21 @@ def handle_message(msg):
     if action == "cash_number":
         set_setting("cash_number", text)
         tg_send_message(chat_id, f"تم تغيير رقم الكاش لـ {text}")
+        send_main_menu(chat_id)
+        return
+
+    if action == "chat_ban":
+        parts = text.split()
+        if len(parts) != 2 or not parts[1].isdigit():
+            tg_send_message(chat_id, "الصيغة غلط. اكتب: الرقم مسافة عدد الدقايق، مثال:\n01012345678 60\n(اكتب 0 دقيقة عشان تفك الحظر فورًا)")
+            pending_action[chat_id] = action
+            return
+        msisdn, minutes = parts[0], int(parts[1])
+        set_chat_ban(msisdn, minutes)
+        if minutes == 0:
+            tg_send_message(chat_id, f"تم فك حظر {msisdn} من الدعم")
+        else:
+            tg_send_message(chat_id, f"تم حظر {msisdn} من التواصل مع الدعم لمدة {minutes} دقيقة")
         send_main_menu(chat_id)
         return
 
@@ -259,6 +276,10 @@ def handle_callback(cb):
         pending_action[chat_id] = "banner"
         tg_send_message(chat_id, "اكتب: all أو رقم المستخدم، مسافة، بعدين الرسالة\nمثال:\nall صيانة النهارده الساعة 5")
 
+    elif data == "menu_chat_ban":
+        pending_action[chat_id] = "chat_ban"
+        tg_send_message(chat_id, "اكتب: رقم الموبايل مسافة عدد الدقايق، مثال:\n01012345678 60\n(اكتب 0 دقيقة عشان تفك الحظر فورًا)")
+
     elif data == "menu_settings":
         pp = get_setting("point_price")
         cn = get_setting("cash_number")
@@ -287,12 +308,19 @@ def handle_callback(cb):
         send_main_menu(chat_id)
 
     elif data == "menu_stats":
-        conn = db()
-        users_count = conn.execute("SELECT COUNT(*) c FROM users").fetchone()["c"]
-        total_stars = conn.execute("SELECT COALESCE(SUM(stars),0) s FROM users").fetchone()["s"]
-        pending = conn.execute("SELECT COUNT(*) c FROM topup_requests WHERE status='pending'").fetchone()["c"]
-        conn.close()
-        tg_send_message(chat_id, f"📊 الإحصائيات:\n\nإجمالي المستخدمين: {users_count}\nإجمالي النقاط: {total_stars}\nطلبات شحن معلّقة: {pending}")
+        s = full_stats()
+        tg_send_message(chat_id, (
+            "📊 الإحصائيات الكاملة:\n\n"
+            f"👥 إجمالي المستخدمين: {s['users_count']}\n"
+            f"⭐ إجمالي النقاط في التطبيق: {s['total_stars']}\n\n"
+            f"✅ عمليات شحن كروت ناجحة: {s['successful_charges']}\n"
+            f"✅ عمليات شحن رصيد ناجحة: {s['successful_recharges']}\n"
+            f"📆 عمليات اليوم: {s['charges_today']} | عمليات الشهر: {s['charges_month']}\n\n"
+            f"📩 طلبات شحن معلّقة: {s['pending_topups']}\n"
+            f"✔️ طلبات مقبولة: {s['approved_topups']} | ✖️ طلبات مرفوضة: {s['rejected_topups']}\n\n"
+            f"💬 إجمالي الرسائل: {s['total_messages']}\n"
+            f"🚫 محظورين من الشحن: {s['banned_users']} | 🔇 محظورين من الدعم دلوقتي: {s['chat_banned']}"
+        ))
         send_main_menu(chat_id)
 
     elif data.startswith("approve_"):
