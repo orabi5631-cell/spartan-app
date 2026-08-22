@@ -46,32 +46,7 @@ jobs:
           base64 -d android-plugin/spartan-debug.keystore.base64 > android-plugin/spartan-debug.keystore
           ls -la android-plugin/spartan-debug.keystore
           keytool -list -v -keystore android-plugin/spartan-debug.keystore -storepass spartan123 -alias spartankey | head -5
-          python3 - << 'PYEOF'
-          import sys
-          path = "android/app/build.gradle"
-          with open(path) as f:
-              content = f.read()
-          signing_block = '''    signingConfigs {
-        debug {
-            storeFile file("../../android-plugin/spartan-debug.keystore")
-            storePassword "spartan123"
-            keyAlias "spartankey"
-            keyPassword "spartan123"
-        }
-    }
-'''
-          if "spartan-debug.keystore" in content:
-              print("signingConfigs already present, skipping insert")
-          else:
-              marker = "android {"
-              if marker not in content:
-                  print("ERROR: could not find 'android {' in build.gradle")
-                  sys.exit(1)
-              content = content.replace(marker, marker + "\n" + signing_block, 1)
-              with open(path, "w") as f:
-                  f.write(content)
-              print("signingConfigs block inserted")
-          PYEOF
+          python3 android-plugin/patch_signing.py
           echo "----- relevant part of build.gradle -----"
           grep -A 8 "signingConfigs" android/app/build.gradle || (echo "ERROR: signingConfigs missing after patch" && exit 1)
 
