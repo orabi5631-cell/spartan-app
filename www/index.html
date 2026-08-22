@@ -363,10 +363,9 @@ async function logActivity(message){
 function interpretResponse(status, rawText, isRecharge){
   let parsed = null;
   try{ parsed = JSON.parse(rawText); }catch(e){}
-  if(parsed && parsed.code === "6051") return { success:false, message:"❌ رصيدك الحالي غير كافي للشحن" };
-  if(parsed && parsed.code === "1056") return { success:false, message:"❌ رقم السري غير صحيحة" };
-  if(parsed && parsed.code === "1051") return { success:false, message:"❌ ليس لديك محفظة فودافون كاش" };
-  if(Number(status) === 201 && parsed && parsed.state === "Completed"){
+  const st = Number(status);
+  const successStatuses = [200, 201, 202, 203];
+  if(successStatuses.indexOf(st) !== -1 && parsed && parsed.state === "Completed"){
     return { success:true, message: isRecharge ? "✅ تم شحن الرصيد بنجاح" : "✅ تم شحن الكارت بنجاح" };
   }
   if(parsed && parsed.reason) return { success:false, message: "❌ " + parsed.reason };
