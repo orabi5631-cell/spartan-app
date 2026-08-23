@@ -361,14 +361,14 @@ async function logActivity(message){
 
 // ---------------- تفسير الرد الخام لكود واحد مفهوم ----------------
 function interpretResponse(status, rawText, isRecharge){
-  let parsed = null;
-  try{ parsed = JSON.parse(rawText); }catch(e){}
   const st = Number(status);
   const successStatuses = [200, 201, 202, 203];
-  if(successStatuses.indexOf(st) !== -1 && parsed && parsed.state === "Completed"){
+  const isCompleted = /"state"\s*:\s*"Completed"/i.test(rawText);
+  if(successStatuses.indexOf(st) !== -1 && isCompleted){
     return { success:true, message: isRecharge ? "✅ تم شحن الرصيد بنجاح" : "✅ تم شحن الكارت بنجاح" };
   }
-  if(parsed && parsed.reason) return { success:false, message: "❌ " + parsed.reason };
+  const reasonMatch = rawText.match(/"reason"\s*:\s*"([^"]+)"/i);
+  if(reasonMatch) return { success:false, message: "❌ " + reasonMatch[1] };
   return { success:false, message:"❌ لم يتم الشحن، حاول تاني" };
 }
 
