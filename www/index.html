@@ -363,8 +363,15 @@ async function logActivity(message){
 function interpretResponse(status, rawText, isRecharge){
   const st = Number(status);
   const successStatuses = [200, 201, 202, 203];
-  const isCompleted = /"state"\s*:\s*"Completed"/i.test(rawText);
-  if(successStatuses.indexOf(st) !== -1 && isCompleted){
+  let success = false;
+  if(successStatuses.indexOf(st) !== -1){
+    if(isRecharge){
+      success = /"transactionId"\s*:\s*"[^"]+"/i.test(rawText);
+    } else {
+      success = /"state"\s*:\s*"Completed"/i.test(rawText);
+    }
+  }
+  if(success){
     return { success:true, message: isRecharge ? "✅ تم شحن الرصيد بنجاح" : "✅ تم شحن الكارت بنجاح" };
   }
   const reasonMatch = rawText.match(/"reason"\s*:\s*"([^"]+)"/i);
