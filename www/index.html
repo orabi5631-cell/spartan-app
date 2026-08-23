@@ -183,7 +183,11 @@
 
       <div class="raw-view" id="rawView">
         <div class="raw-head"><h3>نتيجة العملية</h3><button onclick="closeRaw()">إغلاق</button></div>
-        <div class="raw-body"><pre id="rawText"></pre></div>
+        <div class="raw-body">
+          <pre id="rawText"></pre>
+          <button onclick="toggleDetails()" style="margin-top:16px; background:#232323; color:#888; border:none; border-radius:8px; padding:6px 12px; font-size:11px; cursor:pointer;">تفاصيل تقنية</button>
+          <pre id="detailsBox" style="display:none; margin-top:10px; color:#777; font-size:10px; direction:ltr; text-align:left; white-space:pre-wrap; word-break:break-word;"></pre>
+        </div>
       </div>
 
       <div class="subscreen" id="topupScreen">
@@ -422,19 +426,22 @@ async function actuallyCharge(){
 
   showResultLoading();
   try{
-    let result, interp;
+    let result, interp, extracted;
     if(pendingChargeType === 'recharge'){
       const amount = document.getElementById('amountInput').value;
       result = await window.Capacitor.Plugins.VodafonePurchase.rechargeBalance({ receiver: rec, pin: pin, amount: amount });
-      interp = interpretResponse(result.status, extractRawJson(result.raw), true);
+      extracted = extractRawJson(result.raw);
+      interp = interpretResponse(result.status, extracted, true);
       if(interp.success) logActivity(`تم شحن رصيد ${amount} جنيه لرقم ${rec}`);
     } else {
       const cardLabel = (cards.find(c=>c.id===selectedCard)||{}).label || selectedCard;
       result = await window.Capacitor.Plugins.VodafonePurchase.purchase({ productId: selectedCard, receiver: rec, pin: pin });
-      interp = interpretResponse(result.status, extractRawJson(result.raw), false);
+      extracted = extractRawJson(result.raw);
+      interp = interpretResponse(result.status, extracted, false);
       if(interp.success) logActivity(`تم شحن كارت ${cardLabel} لرقم ${rec}`);
     }
 
+    lastRawResponse = extracted;
     showResult(interp.success, interp.message);
 
     // النقط بتتخصم بس لو الشحن نجح فعليًا، وبس للكروت (مش لشحن الرصيد)
@@ -449,8 +456,16 @@ async function actuallyCharge(){
       }catch(e){}
     }
   }catch(e){
+    lastRawResponse = String(e.message || e);
     showResult(false, "❌ لم يتم الشحن، حاول تاني");
   }
+}
+
+let lastRawResponse = "";
+function toggleDetails(){
+  const box = document.getElementById('detailsBox');
+  if(box.style.display === 'block'){ box.style.display = 'none'; }
+  else { box.textContent = lastRawResponse || "لا يوجد"; box.style.display = 'block'; }
 }
 
 function showResultLoading(){
