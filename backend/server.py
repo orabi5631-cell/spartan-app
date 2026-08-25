@@ -164,10 +164,14 @@ def get_user_topup_requests(msisdn: str):
 
 @app.get("/banners/{msisdn}")
 def get_banners(msisdn: str):
+    import datetime
+    cutoff = (datetime.datetime.utcnow() - datetime.timedelta(hours=12)).isoformat()
     conn = db()
+    conn.execute("DELETE FROM banners WHERE created_at < ?", (cutoff,))
+    conn.commit()
     rows = conn.execute(
-        "SELECT id, message, created_at FROM banners WHERE target=? OR target='all' ORDER BY created_at DESC LIMIT 20",
-        (msisdn,),
+        "SELECT id, message, created_at FROM banners WHERE (target=? OR target='all') AND created_at >= ? ORDER BY created_at DESC LIMIT 20",
+        (msisdn, cutoff),
     ).fetchall()
     conn.close()
     return [dict(r) for r in rows]
