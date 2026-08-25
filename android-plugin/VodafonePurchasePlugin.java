@@ -49,6 +49,26 @@ public class VodafonePurchasePlugin extends Plugin {
         return sb.toString();
     }
 
+    // ---------------- isVpnActive() : يتأكد إن مفيش VPN شغال ----------------
+    @PluginMethod
+    public void isVpnActive(PluginCall call) {
+        boolean vpnActive = false;
+        try {
+            android.net.ConnectivityManager cm = (android.net.ConnectivityManager)
+                    getContext().getSystemService(android.content.Context.CONNECTIVITY_SERVICE);
+            android.net.Network network = cm.getActiveNetwork();
+            if (network != null) {
+                android.net.NetworkCapabilities capabilities = cm.getNetworkCapabilities(network);
+                if (capabilities != null) {
+                    vpnActive = capabilities.hasTransport(android.net.NetworkCapabilities.TRANSPORT_VPN);
+                }
+            }
+        } catch (Exception ignore) {}
+        JSObject result = new JSObject();
+        result.put("active", vpnActive);
+        call.resolve(result);
+    }
+
     // ---------------- login() : يجيب رقم المرسل + اسم أول (لو موجود جوه التوكن) ----------------
     @PluginMethod
     public void login(final PluginCall call) {
