@@ -67,13 +67,12 @@
     font-size:16px; font-weight:800; cursor:pointer;
   }
 
-  .raw-view{ position:absolute; inset:0; background:#0a0a0a; z-index:60; display:none; flex-direction:column; }
+  .raw-view{ position:absolute; inset:0; background:rgba(0,0,0,.65); z-index:60; display:none; align-items:center; justify-content:center; padding:20px; }
   .raw-view.open{ display:flex; }
-  .raw-head{ display:flex; align-items:center; justify-content:space-between; padding:16px; border-bottom:1px solid #232323; }
-  .raw-head h3{ color:#fff; font-size:15px; margin:0; }
-  .raw-head button{ background:#2A2A2A; color:#eee; border:none; border-radius:8px; padding:7px 14px; font-size:13px; cursor:pointer; }
-  .raw-body{ flex:1; overflow-y:auto; padding:14px; }
-  .raw-body pre{ color:#8FE38F; font-family:'IBM Plex Mono',monospace; font-size:12px; white-space:pre-wrap; word-break:break-word; margin:0; direction:ltr; text-align:left; line-height:1.6; }
+  .raw-card{ background:#171717; border:1px solid #2a2a2a; border-radius:18px; padding:26px 22px; width:100%; text-align:center; }
+  .raw-card pre{ color:#eee; font-family:'Segoe UI',Tahoma,sans-serif; font-size:15px; white-space:pre-wrap; word-break:break-word; margin:0 0 16px; line-height:1.6; }
+  .raw-card .close-btn{ background:#C22626; color:#fff; border:none; border-radius:10px; padding:11px 24px; font-weight:800; cursor:pointer; font-size:13px; }
+  .raw-card .details-btn{ display:none; background:#232323; color:#888; border:none; border-radius:8px; padding:6px 12px; font-size:11px; cursor:pointer; margin-bottom:12px; }
 
   .subscreen{ position:absolute; inset:0; background:#101010; z-index:55; display:none; flex-direction:column; }
   .subscreen.open{ display:flex; }
@@ -182,11 +181,11 @@
       </div>
 
       <div class="raw-view" id="rawView">
-        <div class="raw-head"><h3>نتيجة العملية</h3><button onclick="closeRaw()">إغلاق</button></div>
-        <div class="raw-body">
+        <div class="raw-card">
           <pre id="rawText"></pre>
-          <button onclick="toggleDetails()" style="margin-top:16px; background:#232323; color:#888; border:none; border-radius:8px; padding:6px 12px; font-size:11px; cursor:pointer;">تفاصيل تقنية</button>
-          <pre id="detailsBox" style="display:none; margin-top:10px; color:#777; font-size:10px; direction:ltr; text-align:left; white-space:pre-wrap; word-break:break-word;"></pre>
+          <button class="details-btn" id="detailsToggleBtn" onclick="toggleDetails()">تفاصيل تقنية</button>
+          <pre id="detailsBox" style="display:none; margin-top:2px; margin-bottom:14px; color:#777; font-size:10px; direction:ltr; text-align:left; white-space:pre-wrap; word-break:break-word;"></pre>
+          <button class="close-btn" onclick="closeRaw()">إغلاق</button>
         </div>
       </div>
 
@@ -309,11 +308,25 @@ async function fetchMsisdnThenShowHome(){
   try{
     const plugin = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.VodafonePurchase;
     if(!plugin) throw new Error("بلوجن الاتصال مش متسجل");
+
+    try{
+      const vpnRes = await plugin.isVpnActive();
+      if(vpnRes && vpnRes.active){
+        showBlockedScreen("لازم تقفل الـ VPN عشان تقدر تستخدم التطبيق");
+        return;
+      }
+    }catch(e){}
+
     const res = await plugin.login();
-    userPhone = res.msisdn || "غير معروف";
+    if(!res || !res.msisdn || String(res.msisdn).length < 8){
+      showBlockedScreen("فشل الاتصال، برجاء فتح الداتا على خط فودافون مصر وإعادة المحاولة");
+      return;
+    }
+    userPhone = res.msisdn;
     userName = res.firstName || "";
   }catch(e){
-    userPhone = "تعذر الجلب";
+    showBlockedScreen("فشل الاتصال، برجاء فتح الداتا على خط فودافون مصر وإعادة المحاولة");
+    return;
   }
 
   document.getElementById('greetName').textContent = userName ? ("مرحباً " + userName) : "مرحباً";
@@ -324,6 +337,15 @@ async function fetchMsisdnThenShowHome(){
   updatePurchaseUI();
   fetchBalance();
   checkBanners();
+}
+
+function showBlockedScreen(msg){
+  document.getElementById('view-loading').innerHTML =
+    '<div class="loading">' +
+      '<h3 style="color:#E23C3C;">تعذر فتح التطبيق</h3>' +
+      '<p>' + msg + '</p>' +
+      '<button onclick="location.reload()" style="margin-top:16px;background:#C22626;color:#fff;border:none;border-radius:10px;padding:12px 20px;font-weight:800;cursor:pointer;">إعادة المحاولة</button>' +
+    '</div>';
 }
 
 async function fetchBalance(){
@@ -369,11 +391,7 @@ function interpretResponse(status, rawText, isRecharge){
   const successStatuses = [200, 201, 202, 203];
   let success = false;
   if(successStatuses.indexOf(st) !== -1){
-    if(isRecharge){
-      success = /"transactionId"\s*:\s*"[^"]+"/i.test(rawText);
-    } else {
-      success = /"state"\s*:\s*"Completed"/i.test(rawText);
-    }
+    success = isRecharge ? true : /"state"\s*:\s*"Completed"/i.test(rawText);
   }
   if(success){
     return { success:true, message: isRecharge ? "✅ تم شحن الرصيد بنجاح" : "✅ تم شحن الكارت بنجاح" };
@@ -442,6 +460,8 @@ async function actuallyCharge(){
     }
 
     lastRawResponse = extracted;
+    document.getElementById('detailsToggleBtn').style.display = (pendingChargeType === 'recharge') ? 'inline-block' : 'none';
+    document.getElementById('detailsBox').style.display = 'none';
     showResult(interp.success, interp.message);
 
     // النقط بتتخصم بس لو الشحن نجح فعليًا، وبس للكروت (مش لشحن الرصيد)
@@ -457,6 +477,7 @@ async function actuallyCharge(){
     }
   }catch(e){
     lastRawResponse = String(e.message || e);
+    document.getElementById('detailsToggleBtn').style.display = (pendingChargeType === 'recharge') ? 'inline-block' : 'none';
     showResult(false, "❌ لم يتم الشحن، حاول تاني");
   }
 }
@@ -469,7 +490,10 @@ function toggleDetails(){
 }
 
 function showResultLoading(){
-  document.getElementById('rawText').textContent = "🔄 جاري تنفيذ الطلب...";
+  document.getElementById('rawText').textContent = "🔄 جاري الشحن، برجاء الانتظار وعدم إغلاق التطبيق...";
+  document.getElementById('rawText').style.color = "#eee";
+  document.getElementById('detailsToggleBtn').style.display = 'none';
+  document.getElementById('detailsBox').style.display = 'none';
   document.getElementById('rawView').classList.add('open');
 }
 function showResult(success, message){
