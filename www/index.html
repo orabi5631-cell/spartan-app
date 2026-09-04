@@ -14,10 +14,23 @@
   .view.active{ display:block; }
 
   .appbar{
-    background:#000; border-bottom:2px solid #C22626;
+    background:#000; border-bottom:2px solid #C22626; position:relative;
     display:flex; align-items:center; justify-content:center; padding:14px 16px;
   }
   .brandmark{ color:#E23C3C; font-weight:800; font-size:22px; letter-spacing:.05em; font-family:Georgia,serif; user-select:none;}
+
+  .menu-btn{ position:absolute; left:14px; top:50%; transform:translateY(-50%); background:none; border:none; color:#eee; font-size:24px; line-height:1; padding:6px 10px; cursor:pointer; }
+  .side-menu-overlay{ position:absolute; inset:0; background:rgba(0,0,0,.5); z-index:80; display:none; }
+  .side-menu-overlay.open{ display:block; }
+  .side-menu{ position:absolute; top:58px; left:10px; width:225px; background:#171717; border:1px solid #2a2a2a; border-radius:14px; overflow:hidden; box-shadow:0 12px 30px rgba(0,0,0,.55); }
+  .side-menu button{ display:block; width:100%; text-align:right; background:none; border:none; border-bottom:1px solid #232323; color:#eee; font-size:14px; padding:13px 16px; cursor:pointer; }
+  .side-menu button:last-child{ border-bottom:none; }
+  .side-menu button:active{ background:#232323; }
+
+  .status-badge{ display:inline-block; font-size:11px; font-weight:800; padding:3px 9px; border-radius:8px; margin-top:6px; }
+  .status-pending{ background:#3a3a1f; color:#e2c53c; }
+  .status-approved{ background:#173a22; color:#4CD964; }
+  .status-rejected{ background:#3a1717; color:#E23C3C; }
 
   .banner-bar{ display:none; background:#C22626; color:#fff; padding:10px 16px; align-items:center; justify-content:space-between; font-size:13px; }
   .banner-bar.show{ display:flex; }
@@ -136,7 +149,20 @@
   </div>
 
   <div class="view" id="view-home">
-    <div class="appbar"><div class="brandmark">فكة</div></div>
+    <div class="appbar">
+      <button class="menu-btn" onclick="toggleMenu()">⋮</button>
+      <div class="brandmark">فكة</div>
+    </div>
+    <div class="side-menu-overlay" id="sideMenuOverlay" onclick="closeMenu()">
+      <div class="side-menu" onclick="event.stopPropagation()">
+        <button onclick="menuAction('activity')">📋 سجل العمليات</button>
+        <button onclick="menuAction('topup')">💎 طلب رصيد</button>
+        <button onclick="menuAction('topupStatus')">📦 متابعة طلبات الشحن</button>
+        <button onclick="menuAction('notifications')">🔔 الإشعارات</button>
+        <button onclick="menuAction('contact')">🎧 تواصل معنا</button>
+        <button onclick="menuAction('channel')">📢 قناة التليجرام</button>
+      </div>
+    </div>
     <div class="banner-bar" id="bannerBar">
       <span id="bannerText"></span>
       <button onclick="closeBanner()">إغلاق</button>
@@ -225,6 +251,20 @@
       <div class="subscreen" id="activityScreen">
         <div class="sub-head"><button onclick="closeSub('activityScreen')">إغلاق</button><h3>سجل العمليات</h3></div>
         <div class="sub-body" id="activityBody">
+          <div class="sub-empty">جاري التحميل...</div>
+        </div>
+      </div>
+
+      <div class="subscreen" id="topupStatusScreen">
+        <div class="sub-head"><button onclick="closeSub('topupStatusScreen')">إغلاق</button><h3>متابعة طلبات الشحن</h3></div>
+        <div class="sub-body" id="topupStatusBody">
+          <div class="sub-empty">جاري التحميل...</div>
+        </div>
+      </div>
+
+      <div class="subscreen" id="notificationsScreen">
+        <div class="sub-head"><button onclick="closeSub('notificationsScreen')">إغلاق</button><h3>الإشعارات</h3></div>
+        <div class="sub-body" id="notificationsBody">
           <div class="sub-empty">جاري التحميل...</div>
         </div>
       </div>
@@ -510,7 +550,17 @@ function extractRawJson(fullLog){
 function closeRaw(){ document.getElementById('rawView').classList.remove('open'); document.getElementById('rawText').style.color = "#8FE38F"; }
 function closeSub(id){ const el = document.getElementById(id); el.classList.remove('open'); el.style.display = ''; }
 
-function openTopup(){
+async function openTopup(){
+  if(backendReady()){
+    try{
+      const res = await fetch(BACKEND_URL + "/public-settings");
+      const data = await res.json();
+      if(!data.requests_enabled){
+        alert("❌ لا يمكن شحن نقاط في الوقت الحالي");
+        return;
+      }
+    }catch(e){ /* لو السيرفر مش راد، نسيب المستخدم يكمل عادي */ }
+  }
   document.getElementById('cashNumberText').textContent = CASH_NUMBER;
   document.getElementById('topupStepA').style.display = 'block';
   document.getElementById('topupStepB').style.display = 'none';
@@ -624,6 +674,72 @@ async function sendChatMessage(){
     input.value = "";
     await loadChat();
   }catch(e){}
+}
+
+function toggleMenu(){
+  document.getElementById('sideMenuOverlay').classList.toggle('open');
+}
+function closeMenu(){
+  document.getElementById('sideMenuOverlay').classList.remove('open');
+}
+function menuAction(which){
+  closeMenu();
+  if(which === 'activity') openActivity();
+  else if(which === 'topup') openTopup();
+  else if(which === 'topupStatus') openTopupStatus();
+  else if(which === 'notifications') openNotifications();
+  else if(which === 'contact') openContact();
+  else if(which === 'channel') openTelegramChannel();
+}
+function openTelegramChannel(){
+  window.open('https://t.me/TeamSPARTAN_k', '_blank');
+}
+
+async function openTopupStatus(){
+  document.getElementById('topupStatusScreen').classList.add('open');
+  const body = document.getElementById('topupStatusBody');
+  body.innerHTML = '<div class="sub-empty">جاري التحميل...</div>';
+  if(!backendReady()){ body.innerHTML = '<div class="sub-empty">السيرفر مش موصول لسه.</div>'; return; }
+  try{
+    const res = await fetch(BACKEND_URL + "/topup-requests/" + userPhone);
+    const rows = await res.json();
+    if(!rows.length){ body.innerHTML = '<div class="sub-empty">لسه معملتش أي طلب شحن.</div>'; return; }
+    body.innerHTML = "";
+    const statusMap = {
+      pending:  { label: "⏳ قيد المراجعة", cls: "status-pending" },
+      approved: { label: "✅ تم القبول",   cls: "status-approved" },
+      rejected: { label: "❌ مرفوض",       cls: "status-rejected" },
+    };
+    rows.forEach(r=>{
+      const st = statusMap[r.status] || { label: r.status, cls: "status-pending" };
+      const el = document.createElement('div');
+      el.className = 'log-item';
+      el.innerHTML =
+        `<div class="msg">طلب ${r.points} نقطة — ${r.amount} جنيه</div>
+         <span class="status-badge ${st.cls}">${st.label}</span>
+         <div class="time">${r.created_at}</div>`;
+      body.appendChild(el);
+    });
+  }catch(e){ body.innerHTML = '<div class="sub-empty">تعذر تحميل الطلبات.</div>'; }
+}
+
+async function openNotifications(){
+  document.getElementById('notificationsScreen').classList.add('open');
+  const body = document.getElementById('notificationsBody');
+  body.innerHTML = '<div class="sub-empty">جاري التحميل...</div>';
+  if(!backendReady()){ body.innerHTML = '<div class="sub-empty">السيرفر مش موصول لسه.</div>'; return; }
+  try{
+    const res = await fetch(BACKEND_URL + "/banners/" + userPhone);
+    const rows = await res.json();
+    if(!rows.length){ body.innerHTML = '<div class="sub-empty">مفيش إشعارات جديدة.</div>'; return; }
+    body.innerHTML = "";
+    rows.forEach(r=>{
+      const el = document.createElement('div');
+      el.className = 'log-item';
+      el.innerHTML = `<div class="msg">📣 ${r.message}</div><div class="time">${r.created_at}</div>`;
+      body.appendChild(el);
+    });
+  }catch(e){ body.innerHTML = '<div class="sub-empty">تعذر تحميل الإشعارات.</div>'; }
 }
 
 initApp();
