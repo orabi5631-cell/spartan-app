@@ -22,7 +22,7 @@ from dbhelpers import (
     set_chat_ban, full_stats,
 )
 
-BOT_TOKEN = "8976525117:AAG9Y3QOQ_Expk5OXKJA5kp8KwWdqlwn0Ws"
+BOT_TOKEN = "8976525117:AAH0egOXCBfadBdhvFvqUX93W1o0I5CvFVU"
 ADMIN_ID = 8558032730
 API = f"https://api.telegram.org/bot{BOT_TOKEN}"
 
